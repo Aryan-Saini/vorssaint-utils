@@ -43,6 +43,7 @@ patches_intact() {
     grep -q 'VORSSAINT_SIGN_IDENTITY' build.sh \
     && grep -q 'Vorssaint DEV' build.sh \
     && grep -q 'DEV_ICON_TINT' build.sh \
+    && grep -q 'VORSSAINT_ICON_TINT' Tools/MakeIcon.swift \
     && grep -q 'developerBadged' Sources/Vorssaint/App/StatusItemController.swift
 }
 
@@ -53,8 +54,12 @@ resolve_rebase_with_claude() {
     ( cd "$REPO" && "$claude_bin" -p "You are in the git repository at ${REPO}, a personal fork of \
 vorssaint/vorssaint-utils. A 'git rebase ${MIRROR_BRANCH}' of branch '${WORK_BRANCH}' stopped on conflicts. \
 Resolve every conflict so the fork's changes on '${WORK_BRANCH}' are preserved on top of upstream. \
-The fork's build.sh patch (the Vorssaint DEV name, \
-VORSSAINT_DEV_OPTIMIZED and VORSSAINT_SIGN_IDENTITY) must survive. For each step: edit the files to a correct merge, \
+Two kinds of commits live on '${WORK_BRANCH}'. DEV patches must survive every rebase: in build.sh \
+the Vorssaint DEV name, VORSSAINT_DEV_OPTIMIZED, VORSSAINT_SIGN_IDENTITY and DEV_ICON_TINT (plus the \
+icon.json tint block), VORSSAINT_ICON_TINT in Tools/MakeIcon.swift, and developerBadged in \
+Sources/Vorssaint/App/StatusItemController.swift. Commits whose subject ends in '(PR <number>)' are \
+Aryan's upstream PRs cherry-picked early: if upstream already contains that feature, even edited by \
+reviewers, keep upstream's version and git rebase --skip the commit. For each step: edit the files to a correct merge, \
 git add them, git rebase --continue. Use git rebase --skip only if the commit is already fully \
 upstream. Never git rebase --abort, never push. Finish with git status showing no rebase in progress." \
         --dangerously-skip-permissions ) || true
@@ -106,7 +111,15 @@ was_running=0
 pgrep -x "$PROCESS" >/dev/null && was_running=1
 
 log "Building and installing (build output: $LOG)…"
-./build.sh --dev --install >>"$LOG" 2>&1 || fail "build or install failed, see $LOG"
+if ! ./build.sh --dev --install >>"$LOG" 2>&1; then
+    # build.sh stops the app before installing. Bring back whatever is installed if it is
+    # still validly signed, so a failed update never leaves the menu bar app dead.
+    if [[ "$was_running" == "1" ]] && codesign --verify --deep --strict "$APP" >/dev/null 2>&1; then
+        open "$APP"
+        fail "build or install failed, previous app relaunched; see $LOG"
+    fi
+    fail "build or install failed and $APP is missing or badly signed; see $LOG"
+fi
 codesign -d -r- "$APP" 2>&1 | grep -qF "$SIGNER" || fail "installed app is not signed by $SIGNER"
 # Pre-rename bundle, same bundle id; two copies would confuse Launch Services.
 rm -rf "/Applications/Vorssaint (Developer).app"
