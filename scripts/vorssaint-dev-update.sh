@@ -126,4 +126,7 @@ rm -rf "/Applications/Vorssaint (Developer).app"
 [[ "$was_running" == "1" ]] && open "$APP"
 
 rm -f /tmp/vorssaint-dev-update-available
+# Off-machine backup of the fork. A rebase rewrites the branch, hence the lease.
+git push --quiet --force-with-lease fork "$WORK_BRANCH" >>"$LOG" 2>&1 \
+    || log "push to fork failed (not fatal), see $LOG"
 notify "Vorssaint updated" "Pulled $behind commit(s), rebuilt and reinstalled."
