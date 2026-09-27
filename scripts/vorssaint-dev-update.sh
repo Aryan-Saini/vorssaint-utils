@@ -10,10 +10,9 @@
 # surprise. `--force` rebuilds even when upstream has nothing new.
 #
 # Installs /Applications/Vorssaint DEV.app (bundle id com.vorssaint.utils.dev, which
-# never self-updates), optimized, and signed with the pinned Syncafy Developer ID.
-# A Developer ID rather than a self-signed cert like cmux's: build.sh's hardened
-# runtime path and the privileged fan helper expect one, and Gatekeeper stays quiet.
-# The designated requirement is team-based, so Accessibility grants survive rebuilds.
+# never self-updates), optimized, and signed with Aryan's pinned Apple Development
+# identity, like Peekaboo. Personal, not the Syncafy Developer ID: that is company
+# signing. The designated requirement stays fixed, so Accessibility grants survive rebuilds.
 set -uo pipefail
 
 REPO="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
@@ -22,10 +21,11 @@ MIRROR_BRANCH="${VORSSAINT_DEV_MIRROR_BRANCH:-main}"
 LOG="${VORSSAINT_DEV_LOG:-/tmp/vorssaint-dev-update.log}"
 APP="/Applications/Vorssaint DEV.app"
 PROCESS="VorssaintDeveloper"
-TEAM_ID="NQGS32ZLHW"
-# Developer ID Application: Syncafy Inc (NQGS32ZLHW). A hash, so a renewed cert
+# The leaf the designated requirement pins; the team on this cert is Syncafy's.
+SIGNER="Apple Development: Aryan Saini (D949RXKYAM)"
+# Apple Development: Aryan Saini (D949RXKYAM). A hash, so a renewed cert
 # with the same name can never be picked by accident.
-export VORSSAINT_SIGN_IDENTITY="${VORSSAINT_SIGN_IDENTITY:-D7E17781D9C617A840526F10F706E47C0565AA60}"
+export VORSSAINT_SIGN_IDENTITY="${VORSSAINT_SIGN_IDENTITY:-BD77994E73F3EFFE094B181DC4302AF23AF5D6AD}"
 export VORSSAINT_DEV_OPTIMIZED=1
 export PATH="/opt/homebrew/bin:$HOME/.local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
 cd "$REPO" || exit 1
@@ -109,7 +109,7 @@ pgrep -x "$PROCESS" >/dev/null && was_running=1
 
 log "Building and installing (build output: $LOG)…"
 ./build.sh --dev --install >>"$LOG" 2>&1 || fail "build or install failed, see $LOG"
-codesign -dv "$APP" 2>&1 | grep -q "TeamIdentifier=$TEAM_ID" || fail "installed app is not signed by $TEAM_ID"
+codesign -d -r- "$APP" 2>&1 | grep -qF "$SIGNER" || fail "installed app is not signed by $SIGNER"
 # Pre-rename bundle, same bundle id; two copies would confuse Launch Services.
 rm -rf "/Applications/Vorssaint (Developer).app"
 [[ "$was_running" == "1" ]] && open "$APP"
