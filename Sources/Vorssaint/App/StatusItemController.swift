@@ -916,7 +916,10 @@ enum BlackHoleGlyph {
 
     static func image(active: Bool) -> NSImage? {
         let tint = KeepAwakeIconTint.current
-        guard active else { return mark() ?? fallback(active: false) }
+        guard active else {
+            guard let mark = mark() else { return fallback(active: false) }
+            return AppInfo.isDeveloperBuild ? developerBadged(mark) : mark
+        }
         return activeImage(style: .current, tint: tint)
     }
 
@@ -1043,6 +1046,24 @@ enum BlackHoleGlyph {
         }
         composed.isTemplate = false
         return composed
+    }
+
+    /// Fork: the idle glyph with a small red dot, so the DEV build is never
+    /// mistaken for the official app. Drawn like `micMutedImage`: the template
+    /// glyph takes the label color of whichever menu bar it lands on.
+    private static func developerBadged(_ glyph: NSImage) -> NSImage {
+        let dot: CGFloat = 4
+        let badged = NSImage(size: glyph.size, flipped: false) { rect in
+            glyph.draw(in: rect, from: .zero, operation: .sourceOver, fraction: 1)
+            NSColor.labelColor.setFill()
+            rect.fill(using: .sourceAtop)
+            NSColor.systemRed.setFill()
+            NSBezierPath(ovalIn: NSRect(x: rect.maxX - dot, y: rect.maxY - dot,
+                                        width: dot, height: dot)).fill()
+            return true
+        }
+        badged.isTemplate = false
+        return badged
     }
 
     private static func tintedImage(_ source: NSImage, color: NSColor) -> NSImage? {
