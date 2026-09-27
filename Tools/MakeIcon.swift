@@ -22,6 +22,15 @@ let iconSizes: [(name: String, px: Int, icnsType: String?)] = [
     ("icon_512x512", 512, "ic09"), ("icon_512x512@2x", 1024, "ic10"),
 ]
 
+// Fork: VORSSAINT_ICON_TINT="r,g,b" (0-255) multiplies a color into the app icon,
+// so the white background takes the color and the black planet stays black.
+let iconTint: NSColor? = {
+    guard let raw = ProcessInfo.processInfo.environment["VORSSAINT_ICON_TINT"] else { return nil }
+    let parts = raw.split(separator: ",").compactMap { Double($0.trimmingCharacters(in: .whitespaces)) }
+    guard parts.count == 3 else { return nil }
+    return NSColor(srgbRed: parts[0] / 255, green: parts[1] / 255, blue: parts[2] / 255, alpha: 1)
+}()
+
 let outDir = CommandLine.arguments.count > 1 ? CommandLine.arguments[1] : "AppIcon.iconset"
 let scriptDir = URL(fileURLWithPath: CommandLine.arguments[0]).deletingLastPathComponent()
 let projectDir = scriptDir.deletingLastPathComponent()
@@ -108,6 +117,14 @@ func renderAppIcon(px: Int) -> Data? {
                        operation: .sourceOver, fraction: 1,
                        respectFlipped: false,
                        hints: [.interpolation: NSImageInterpolation.high.rawValue])
+    if let iconTint {
+        let canvas = NSRect(x: 0, y: 0, width: size, height: size)
+        iconTint.setFill()
+        canvas.fill(using: .multiply)
+        // Multiply also paints the transparent corners; cut back to the icon's shape.
+        appIconMaster.draw(in: canvas, from: NSRect(origin: .zero, size: appIconMaster.size),
+                           operation: .destinationIn, fraction: 1)
+    }
     NSGraphicsContext.restoreGraphicsState()
     return rep.representation(using: .png, properties: [:])
 }
