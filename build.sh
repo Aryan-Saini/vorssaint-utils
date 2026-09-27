@@ -623,7 +623,13 @@ swiftc -O -target "$TARGET" -sdk "$SDK" "${SDK_COMPAT_FLAGS[@]}" -emit-library \
     -o "build/$NOW_PLAYING_ADAPTER"
 
 echo "▸ Generating app icon…"
-swift Tools/MakeIcon.swift build/AppIcon.iconset
+# Fork: the DEV build gets a red icon so it never passes for the official app.
+DEV_ICON_TINT="255,69,58"
+if (( DEV )); then
+    VORSSAINT_ICON_TINT="$DEV_ICON_TINT" swift Tools/MakeIcon.swift build/AppIcon.iconset
+else
+    swift Tools/MakeIcon.swift build/AppIcon.iconset
+fi
 xattr -c -r build/AppIcon.iconset build/AppIcon.icns build/MenuBarIcon.png build/MenuBarIcon@2x.png build/BrandMark.png 2>/dev/null || true
 ACTOOL_BIN="$(xcrun --find actool 2>/dev/null || true)"
 ICON_TMP="$(mktemp -d)"
@@ -634,6 +640,20 @@ else
     echo "▸ Compiling adaptive icon catalog…"
     # actool crashes on File Provider-synced paths, so compile a local copy.
     ditto "Resources/Brand/AppIcon.icon" "$ICON_TMP/AppIcon.icon"
+    if (( DEV )); then
+        # Solid red in every appearance, planet kept black.
+        /usr/bin/python3 - "$ICON_TMP/AppIcon.icon/icon.json" "$DEV_ICON_TINT" <<'PY'
+import json, sys
+path, tint = sys.argv[1], [int(v) / 255 for v in sys.argv[2].split(",")]
+icon = json.load(open(path))
+icon.pop("fill-specializations", None)
+icon["fill"] = {"solid": "srgb:" + ",".join(f"{v:.5f}" for v in tint + [1])}
+for group in icon.get("groups", []):
+    for layer in group.get("layers", []):
+        layer.pop("fill-specializations", None)
+json.dump(icon, open(path, "w"), indent=2)
+PY
+    fi
     # Xcode 27 beta actool requires the --compile target directory to already exist.
     mkdir -p "$ICON_TMP/catalog"
     if "$ACTOOL_BIN" "$ICON_TMP/AppIcon.icon" \
