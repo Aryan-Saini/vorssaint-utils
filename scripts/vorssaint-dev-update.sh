@@ -40,10 +40,10 @@ rebase_in_progress() { [[ -d .git/rebase-merge || -d .git/rebase-apply ]]; }
 
 # The fork's patches. The build is refused if one vanished in a rebase.
 patches_intact() {
-    grep -q 'case minimize' Sources/Vorssaint/Core/QuitProtectionSupport.swift \
-    && grep -q 'minimizeFocusedWindow' Sources/Vorssaint/Services/QuitProtection/QuitProtectionService.swift \
-    && grep -q 'VORSSAINT_SIGN_IDENTITY' build.sh \
-    && grep -q 'Vorssaint DEV' build.sh
+    grep -q 'VORSSAINT_SIGN_IDENTITY' build.sh \
+    && grep -q 'Vorssaint DEV' build.sh \
+    && grep -q 'DEV_ICON_TINT' build.sh \
+    && grep -q 'developerBadged' Sources/Vorssaint/App/StatusItemController.swift
 }
 
 resolve_rebase_with_claude() {
@@ -54,9 +54,7 @@ resolve_rebase_with_claude() {
 vorssaint/vorssaint-utils. A 'git rebase ${MIRROR_BRANCH}' of branch '${WORK_BRANCH}' stopped on conflicts. \
 Resolve every conflict so the fork's changes on '${WORK_BRANCH}' are preserved on top of upstream. \
 The fork's build.sh patch (the Vorssaint DEV name, \
-VORSSAINT_DEV_OPTIMIZED and VORSSAINT_SIGN_IDENTITY) must survive, and so must the Command-W minimize mode: QuitProtectionMode.minimize, \
-QuitProtectionSupport.modes(for:), QuitProtectionService.minimizeFocusedWindow, and the minimize \
-string in every locale of QuitProtectionStrings. For each step: edit the files to a correct merge, \
+VORSSAINT_DEV_OPTIMIZED and VORSSAINT_SIGN_IDENTITY) must survive. For each step: edit the files to a correct merge, \
 git add them, git rebase --continue. Use git rebase --skip only if the commit is already fully \
 upstream. Never git rebase --abort, never push. Finish with git status showing no rebase in progress." \
         --dangerously-skip-permissions ) || true
