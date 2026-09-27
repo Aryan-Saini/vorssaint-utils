@@ -792,6 +792,7 @@ enum DefaultsKey {
     static let notchDownloadsFolderBookmark = "notchDownloadsFolderBookmark"
     static let notchCalendarEnabled = "notchCalendarEnabled"
     static let notchCalendarCountdown = "notchCalendarCountdown"
+    static let notchCalendarExcluded = "notchCalendarExcluded" // [EKCalendar.calendarIdentifier] left out of the island
     // AI agents: what the island reads from Claude Code and Codex, and shows.
     static let notchAgentsEnabled = "notchAgentsEnabled"
     static let notchAgentsClaude = "notchAgentsClaude"
@@ -1318,6 +1319,7 @@ enum Defaults {
         DefaultsKey.notchAccessoriesEnabled: true,
         DefaultsKey.notchCalendarEnabled: true,
         DefaultsKey.notchCalendarCountdown: false,
+        DefaultsKey.notchCalendarExcluded: [String](),
         DefaultsKey.notchAgentsEnabled: true,
         DefaultsKey.notchAgentsClaude: true,
         DefaultsKey.notchAgentsCodex: true,
