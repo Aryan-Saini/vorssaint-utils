@@ -43,12 +43,19 @@ for arg in "$@"; do
 done
 
 if (( DEV )); then
-    APP_NAME="Vorssaint (Developer)"
+    # Fork: named like cmux DEV. VORSSAINT_DEV_OPTIMIZED=1 builds it with -O, for
+    # running the dev app as the daily driver.
+    APP_NAME="${VORSSAINT_DEV_APP_NAME:-Vorssaint DEV}"
     EXECUTABLE="VorssaintDeveloper"
     APP_BUNDLE_ID="com.vorssaint.utils.dev"
     BUILD_VARIANT_FLAGS=(-D VORSSAINT_DEVELOPMENT)
-    APP_OPTIMIZATION_FLAGS=(-Onone)
-    BUILD_CONFIGURATION="debug"
+    if [[ "${VORSSAINT_DEV_OPTIMIZED:-0}" == "1" ]]; then
+        APP_OPTIMIZATION_FLAGS=(-O)
+        BUILD_CONFIGURATION="release"
+    else
+        APP_OPTIMIZATION_FLAGS=(-Onone)
+        BUILD_CONFIGURATION="debug"
+    fi
 else
     APP_NAME="Vorssaint"
     EXECUTABLE="Vorssaint"
@@ -66,7 +73,10 @@ TARGET="arm64-apple-macosx14.0"
 ENTITLEMENTS="Resources/Vorssaint.entitlements"
 LEGACY_IDENTITY="Vorssaint Utils Signing"
 
+# Fork: VORSSAINT_SIGN_IDENTITY (a name or SHA-1 hash) pins the identity instead
+# of taking the first Developer ID in the keychain.
 developer_id_identity() {
+    [[ -n "${VORSSAINT_SIGN_IDENTITY:-}" ]] && { echo "$VORSSAINT_SIGN_IDENTITY"; return; }
     security find-identity -v -p codesigning 2>/dev/null \
         | grep 'Developer ID Application' \
         | head -1 \

@@ -9,16 +9,24 @@
 # Nothing changes until you run this, so upstream never breaks the installed app by
 # surprise. `--force` rebuilds even when upstream has nothing new.
 #
-# Installs /Applications/Vorssaint (Developer).app (bundle id com.vorssaint.utils.dev),
-# signed with the Syncafy Developer ID, so Accessibility and other grants survive rebuilds.
+# Installs /Applications/Vorssaint DEV.app (bundle id com.vorssaint.utils.dev, which
+# never self-updates), optimized, and signed with the pinned Syncafy Developer ID.
+# A Developer ID rather than a self-signed cert like cmux's: build.sh's hardened
+# runtime path and the privileged fan helper expect one, and Gatekeeper stays quiet.
+# The designated requirement is team-based, so Accessibility grants survive rebuilds.
 set -uo pipefail
 
 REPO="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
 WORK_BRANCH="${VORSSAINT_DEV_BRANCH:-my-changes}"
 MIRROR_BRANCH="${VORSSAINT_DEV_MIRROR_BRANCH:-main}"
 LOG="${VORSSAINT_DEV_LOG:-/tmp/vorssaint-dev-update.log}"
-APP="/Applications/Vorssaint (Developer).app"
+APP="/Applications/Vorssaint DEV.app"
 PROCESS="VorssaintDeveloper"
+TEAM_ID="NQGS32ZLHW"
+# Developer ID Application: Syncafy Inc (NQGS32ZLHW). A hash, so a renewed cert
+# with the same name can never be picked by accident.
+export VORSSAINT_SIGN_IDENTITY="${VORSSAINT_SIGN_IDENTITY:-D7E17781D9C617A840526F10F706E47C0565AA60}"
+export VORSSAINT_DEV_OPTIMIZED=1
 export PATH="/opt/homebrew/bin:$HOME/.local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
 cd "$REPO" || exit 1
 
@@ -33,7 +41,9 @@ rebase_in_progress() { [[ -d .git/rebase-merge || -d .git/rebase-apply ]]; }
 # The fork's patches. The build is refused if one vanished in a rebase.
 patches_intact() {
     grep -q 'case minimize' Sources/Vorssaint/Core/QuitProtectionSupport.swift \
-    && grep -q 'minimizeFocusedWindow' Sources/Vorssaint/Services/QuitProtection/QuitProtectionService.swift
+    && grep -q 'minimizeFocusedWindow' Sources/Vorssaint/Services/QuitProtection/QuitProtectionService.swift \
+    && grep -q 'VORSSAINT_SIGN_IDENTITY' build.sh \
+    && grep -q 'Vorssaint DEV' build.sh
 }
 
 resolve_rebase_with_claude() {
@@ -43,7 +53,8 @@ resolve_rebase_with_claude() {
     ( cd "$REPO" && "$claude_bin" -p "You are in the git repository at ${REPO}, a personal fork of \
 vorssaint/vorssaint-utils. A 'git rebase ${MIRROR_BRANCH}' of branch '${WORK_BRANCH}' stopped on conflicts. \
 Resolve every conflict so the fork's changes on '${WORK_BRANCH}' are preserved on top of upstream. \
-The fork's Command-W minimize mode must survive: QuitProtectionMode.minimize, \
+The fork's build.sh patch (the Vorssaint DEV name, \
+VORSSAINT_DEV_OPTIMIZED and VORSSAINT_SIGN_IDENTITY) must survive, and so must the Command-W minimize mode: QuitProtectionMode.minimize, \
 QuitProtectionSupport.modes(for:), QuitProtectionService.minimizeFocusedWindow, and the minimize \
 string in every locale of QuitProtectionStrings. For each step: edit the files to a correct merge, \
 git add them, git rebase --continue. Use git rebase --skip only if the commit is already fully \
@@ -90,11 +101,17 @@ git merge-base --is-ancestor "$MIRROR_BRANCH" "$WORK_BRANCH" \
 [[ "$(git branch --show-current)" == "$WORK_BRANCH" ]] || fail "ended off $WORK_BRANCH; not building"
 patches_intact || fail "a fork patch was lost in the rebase; restore it before building"
 
+security find-identity -v -p codesigning | grep -q "$VORSSAINT_SIGN_IDENTITY" \
+    || fail "signing identity $VORSSAINT_SIGN_IDENTITY is not in the keychain"
+
 was_running=0
 pgrep -x "$PROCESS" >/dev/null && was_running=1
 
 log "Building and installing (build output: $LOG)…"
 ./build.sh --dev --install >>"$LOG" 2>&1 || fail "build or install failed, see $LOG"
+codesign -dv "$APP" 2>&1 | grep -q "TeamIdentifier=$TEAM_ID" || fail "installed app is not signed by $TEAM_ID"
+# Pre-rename bundle, same bundle id; two copies would confuse Launch Services.
+rm -rf "/Applications/Vorssaint (Developer).app"
 [[ "$was_running" == "1" ]] && open "$APP"
 
 rm -f /tmp/vorssaint-dev-update-available
