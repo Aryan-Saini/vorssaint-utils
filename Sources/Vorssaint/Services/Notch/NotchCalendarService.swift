@@ -81,6 +81,10 @@ final class NotchCalendarService: NSObject, ObservableObject {
         let excludedCalendars = NotchCalendarSupport.excludedCalendars()
         guard reader == nil else {
             if self.countdownEnabled != countdownEnabled || self.excludedCalendars != excludedCalendars {
+                if !excludedCalendars.isSubset(of: self.excludedCalendars) {
+                    events = []
+                    countdownEvent = nil
+                }
                 self.countdownEnabled = countdownEnabled
                 self.excludedCalendars = excludedCalendars
                 if !countdownEnabled { countdownEvent = nil }
