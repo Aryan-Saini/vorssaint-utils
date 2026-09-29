@@ -43,13 +43,13 @@ for arg in "$@"; do
 done
 
 if (( DEV )); then
-    # Fork: named like cmux DEV. VORSSAINT_DEV_OPTIMIZED=1 builds it with -O, for
-    # running the dev app as the daily driver.
+    # Fork: named like cmux DEV. Built with -O by default so the dev app performs like
+    # the release it stands in for; VORSSAINT_DEV_OPTIMIZED=0 gives a -Onone debug build.
     APP_NAME="${VORSSAINT_DEV_APP_NAME:-Vorssaint DEV}"
     EXECUTABLE="VorssaintDeveloper"
     APP_BUNDLE_ID="com.vorssaint.utils.dev"
     BUILD_VARIANT_FLAGS=(-D VORSSAINT_DEVELOPMENT)
-    if [[ "${VORSSAINT_DEV_OPTIMIZED:-0}" == "1" ]]; then
+    if [[ "${VORSSAINT_DEV_OPTIMIZED:-1}" == "1" ]]; then
         APP_OPTIMIZATION_FLAGS=(-O)
         BUILD_CONFIGURATION="release"
     else
