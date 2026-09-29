@@ -592,7 +592,8 @@ final class RecorderEditorModel: ObservableObject, BackdropEditing {
             return RecorderSupport.gifOutputSize(source: canvas,
                                                   scalePercent: document.resolvedGIFScalePercent)
         }
-        return RecorderSupport.outputSize(source: canvas, quality: document.resolvedQuality)
+        return RecorderSupport.outputSize(source: canvas, quality: document.resolvedQuality,
+                                          resolution: document.resolvedResolution)
     }
 
     func setExportFormat(_ format: RecorderSupport.ExportFormat) {

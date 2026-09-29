@@ -105,6 +105,20 @@ struct RecorderExportSizeControl: View {
                     }
                 }
                 .pickerStyle(.inline)
+                Picker(strings.resolutionLabel, selection: Binding(
+                    get: { model.document.resolvedResolution.rawValue },
+                    set: { value in
+                        guard !model.isExporting else { return }
+                        var next = model.document
+                        next.resolution = value
+                        model.document = next
+                    })) {
+                    ForEach(RecorderSupport.Resolution.allCases, id: \.rawValue) { resolution in
+                        Text(resolution == .original ? strings.resolutionOriginal : resolution.label)
+                            .tag(resolution.rawValue)
+                    }
+                }
+                .pickerStyle(.inline)
             }
         } label: {
             Label(title, systemImage: "slider.horizontal.3")

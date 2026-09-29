@@ -17,6 +17,8 @@ struct RecorderEditDocument: Codable, Equatable {
     var trimStart: Double
     var trimEnd: Double
     var quality: String
+    /// Export only: the short-side cap from `RecorderSupport.Resolution`.
+    var resolution: String
     /// Export only: editing, cuts and overlays stay on their original clock.
     var exportSpeed: Double
     var keepsSystemAudio: Bool
@@ -58,6 +60,7 @@ struct RecorderEditDocument: Codable, Equatable {
     init(trimStart: Double = 0,
          trimEnd: Double = 0,
          quality: String = RecorderSupport.Quality.balanced.rawValue,
+         resolution: String = RecorderSupport.Resolution.original.rawValue,
          exportSpeed: Double = 1,
          keepsSystemAudio: Bool = true,
          exportFormat: String = RecorderSupport.ExportFormat.video.rawValue,
@@ -85,6 +88,7 @@ struct RecorderEditDocument: Codable, Equatable {
         self.trimStart = trimStart
         self.trimEnd = trimEnd
         self.quality = quality
+        self.resolution = resolution
         self.exportSpeed = exportSpeed
         self.keepsSystemAudio = keepsSystemAudio
         self.exportFormat = exportFormat
@@ -119,6 +123,8 @@ struct RecorderEditDocument: Codable, Equatable {
         trimEnd = try container.decodeIfPresent(Double.self, forKey: .trimEnd) ?? 0
         quality = try container.decodeIfPresent(String.self, forKey: .quality)
             ?? RecorderSupport.Quality.balanced.rawValue
+        resolution = try container.decodeIfPresent(String.self, forKey: .resolution)
+            ?? RecorderSupport.Resolution.original.rawValue
         exportSpeed = try container.decodeIfPresent(Double.self, forKey: .exportSpeed) ?? 1
         keepsSystemAudio = try container.decodeIfPresent(Bool.self, forKey: .keepsSystemAudio) ?? true
         exportFormat = try container.decodeIfPresent(String.self, forKey: .exportFormat)
@@ -285,6 +291,10 @@ struct RecorderEditDocument: Codable, Equatable {
         }
     }
 
+    var resolvedResolution: RecorderSupport.Resolution {
+        RecorderSupport.sanitizedResolution(resolution)
+    }
+
     var resolvedGIFSize: RecorderSupport.GIFSize {
         RecorderSupport.sanitizedGIFSize(gifSize)
     }
@@ -347,6 +357,7 @@ struct RecorderEditDocument: Codable, Equatable {
         document.trimStart = trim.start
         document.trimEnd = trim.end
         document.quality = resolvedQuality.rawValue
+        document.resolution = resolvedResolution.rawValue
         document.exportSpeed = exportTiming.speed
         document.exportFormat = resolvedExportFormat.rawValue
         document.gifScalePercent = resolvedGIFScalePercent
