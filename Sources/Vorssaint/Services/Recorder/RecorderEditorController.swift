@@ -579,7 +579,8 @@ final class RecorderEditorModel: ObservableObject, BackdropEditing {
                                                 padding: padding,
                                                 aspect: document.resolvedAspect,
                                                 cropsToAspect: style.kind == .none)
-        return RecorderSupport.outputSize(source: canvas, quality: document.resolvedQuality)
+        return RecorderSupport.outputSize(source: canvas, quality: document.resolvedQuality,
+                                          resolution: document.resolvedResolution)
     }
 
     // MARK: - Cutting

@@ -402,9 +402,48 @@ enum RecorderSupport {
     static let takeQuality: Quality = .high
 
     /// Output size for an export preset, always even.
-    static func outputSize(source: CGSize, quality: Quality) -> CGSize {
-        evenSize(CGSize(width: source.width * quality.outputScale,
-                        height: source.height * quality.outputScale))
+    static func outputSize(source: CGSize, quality: Quality,
+                           resolution: Resolution = .original) -> CGSize {
+        let scale = exportScale(canvas: source, quality: quality, resolution: resolution)
+        return evenSize(CGSize(width: source.width * scale, height: source.height * scale))
+    }
+
+    // MARK: - Resolution
+
+    /// A cap on the finished picture's short side, the way video sizes are
+    /// usually named: 1080p is 1080 tall in landscape and 1080 wide in portrait.
+    /// A cap, never a target, so a recording is never scaled up.
+    enum Resolution: String, CaseIterable {
+        case original
+        case p2160 = "2160"
+        case p1440 = "1440"
+        case p1080 = "1080"
+        case p720 = "720"
+
+        var shortSide: CGFloat? {
+            switch self {
+            case .original: return nil
+            case .p2160: return 2160
+            case .p1440: return 1440
+            case .p1080: return 1080
+            case .p720: return 720
+            }
+        }
+
+        var label: String { rawValue + "p" }
+    }
+
+    static func sanitizedResolution(_ raw: String?) -> Resolution {
+        Resolution(rawValue: raw ?? "") ?? .original
+    }
+
+    /// The one scale every export path applies to the canvas. Small keeps its
+    /// own halving, so the smaller of the two wins. The half pixel keeps float
+    /// error from flooring 1080 down to 1078 in `evenSize`.
+    static func exportScale(canvas: CGSize, quality: Quality, resolution: Resolution) -> CGFloat {
+        let shortest = min(canvas.width, canvas.height)
+        guard let cap = resolution.shortSide, shortest > 0 else { return quality.outputScale }
+        return min(quality.outputScale, (cap + 0.5) / shortest)
     }
 
     // MARK: - Canvas

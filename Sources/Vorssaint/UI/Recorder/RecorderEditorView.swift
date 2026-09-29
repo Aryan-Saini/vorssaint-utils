@@ -465,6 +465,13 @@ struct RecorderEditorView: View {
                     Text(strings.qualityHigh).tag(RecorderSupport.Quality.high.rawValue)
                 }
                 .pickerStyle(.inline)
+                Picker(strings.resolutionLabel, selection: resolutionBinding) {
+                    ForEach(RecorderSupport.Resolution.allCases, id: \.self) { resolution in
+                        Text(resolution == .original ? strings.resolutionOriginal : resolution.label)
+                            .tag(resolution.rawValue)
+                    }
+                }
+                .pickerStyle(.inline)
             } label: {
                 Label(qualityTitle + "  " + outputSizeLabel, systemImage: "slider.horizontal.3")
                     .font(.system(size: 12, weight: .medium))
@@ -480,6 +487,15 @@ struct RecorderEditorView: View {
                 set: { value in
                     var next = model.document
                     next.quality = value
+                    model.document = next
+                })
+    }
+
+    private var resolutionBinding: Binding<String> {
+        Binding(get: { model.document.resolution },
+                set: { value in
+                    var next = model.document
+                    next.resolution = value
                     model.document = next
                 })
     }
