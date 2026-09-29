@@ -209,9 +209,12 @@ final class RecorderExporter {
                                                     padding: padding,
                                                     aspect: document.resolvedAspect,
                                                     cropsToAspect: style.kind == .none)
+        let regularScale = RecorderSupport.exportScale(canvas: fullCanvas,
+                                                       quality: document.resolvedQuality,
+                                                       resolution: document.resolvedResolution)
         let regularSize = RecorderSupport.evenSize(CGSize(
-            width: fullCanvas.width * document.resolvedQuality.outputScale,
-            height: fullCanvas.height * document.resolvedQuality.outputScale))
+            width: fullCanvas.width * regularScale,
+            height: fullCanvas.height * regularScale))
         let sharingPlan = sharingBitRateScale.flatMap {
             RecordingSharingSupport.encodingPlan(
                 duration: timelineDuration.seconds,
@@ -227,7 +230,7 @@ final class RecorderExporter {
             outputScale = min(1, min(sharingPlan.size.width / max(1, fullCanvas.width),
                                      sharingPlan.size.height / max(1, fullCanvas.height)))
         } else {
-            outputScale = document.resolvedQuality.outputScale
+            outputScale = regularScale
         }
 
         // The export preset is folded into the canvas the composer draws, so
@@ -243,7 +246,8 @@ final class RecorderExporter {
         let outputSize = composer?.canvasSize
             ?? sharingPlan?.size
             ?? RecorderSupport.outputSize(source: RecorderSupport.evenSize(sourceSize),
-                                          quality: document.resolvedQuality)
+                                          quality: document.resolvedQuality,
+                                          resolution: document.resolvedResolution)
         guard let composition = await RecorderComposer.videoComposition(
             track: timelineVideo,
             asset: timeline,
