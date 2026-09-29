@@ -233,6 +233,33 @@ enum RecorderFeatureTests {
         suite.expect(RecorderSupport.outputSize(source: CGSize(width: 2940, height: 1912), quality: .balanced)
                 == CGSize(width: 2940, height: 1912),
                "the default preset keeps every pixel too, so text stays as sharp as on screen")
+        let retina = CGSize(width: 3024, height: 1898)
+        suite.expect(RecorderSupport.outputSize(source: retina, quality: .balanced, resolution: .p1080)
+                == CGSize(width: 1720, height: 1080)
+                && RecorderSupport.outputSize(source: retina, quality: .high, resolution: .p720)
+                == CGSize(width: 1146, height: 720),
+               "a size caps the short side and keeps the shape")
+        suite.expect(RecorderSupport.outputSize(source: CGSize(width: 1080, height: 1920),
+                                                quality: .balanced, resolution: .p720)
+                == CGSize(width: 720, height: 1280),
+               "portrait sizes cap the width, the way vertical video is named")
+        suite.expect(RecorderSupport.outputSize(source: retina, quality: .balanced, resolution: .p2160)
+                == retina,
+               "a size larger than the recording never scales it up")
+        suite.expect(RecorderSupport.outputSize(source: retina, quality: .small, resolution: .p1440)
+                == CGSize(width: 1512, height: 948),
+               "small still halves when that is smaller than the chosen size")
+        let resolvedPlan = RecorderComposer.makePlan(
+            document: RecorderEditDocument(backdrop: "", aspect: RecorderSupport.Aspect.square.rawValue),
+            track: RecorderPointerTrack.decoded(nil),
+            sourceSize: retina, frameRate: 30, duration: 10,
+            outputScale: RecorderSupport.exportScale(canvas: CGSize(width: 1898, height: 1898),
+                                                     quality: .balanced, resolution: .p1080))
+        suite.expect(resolvedPlan?.canvasSize == CGSize(width: 1080, height: 1080),
+               "the composed canvas lands exactly on the chosen size")
+        suite.expect(RecorderEditDocument.decoded(Data(#"{"quality":"high"}"#.utf8)).resolution == "original"
+                && RecorderEditDocument(resolution: "junk").sanitized(duration: 10).resolution == "original",
+               "older documents and junk values export at the original size")
         let highRate = RecorderSupport.averageBitRate(width: 2940, height: 1912, fps: 60,
                                                       quality: .high)
         let balancedRate = RecorderSupport.averageBitRate(width: 2940, height: 1912, fps: 60,
