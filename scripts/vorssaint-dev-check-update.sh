@@ -18,6 +18,8 @@ export PATH="/opt/homebrew/bin:/usr/bin:/bin:$PATH"
 cd "$REPO" || exit 1
 git rev-parse --git-dir >/dev/null 2>&1 || exit 0
 git fetch --quiet origin 2>/dev/null || exit 0
+# PR merges, closes and new feedback notify on their own, even with nothing upstream.
+"$REPO/scripts/vorssaint-dev-prs.sh" --notify >/dev/null
 behind="$(git rev-list --count "${MIRROR_BRANCH}..origin/${MIRROR_BRANCH}" 2>/dev/null || echo 0)"
 
 if [[ "$behind" == "0" ]]; then
