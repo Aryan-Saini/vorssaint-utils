@@ -3,7 +3,8 @@
 # vorssaint-dev-update.sh — pull upstream Vorssaint into this fork and reinstall.
 #
 # Same flow as Peekaboo's scripts/peekaboo-dev-update.sh: auto-commit tracked local
-# work -> fast-forward the `main` mirror -> rebase `my-changes` onto it (headless
+# work -> check Aryan's upstream PRs (vorssaint-dev-prs.sh) -> fast-forward the `main`
+# mirror -> rebase `my-changes` onto it, dropping PR commits upstream merged (headless
 # Claude resolves conflicts; aborts safely if it can't) -> verify the fork's patches
 # survived -> `./build.sh --dev --install` -> relaunch if it was running.
 # Nothing changes until you run this, so upstream never breaks the installed app by
@@ -59,7 +60,9 @@ the Vorssaint DEV name, VORSSAINT_DEV_OPTIMIZED, VORSSAINT_SIGN_IDENTITY and DEV
 icon.json tint block), VORSSAINT_ICON_TINT in Tools/MakeIcon.swift, and developerBadged in \
 Sources/Vorssaint/App/StatusItemController.swift. Commits whose subject ends in '(PR <number>)' are \
 Aryan's upstream PRs cherry-picked early: if upstream already contains that feature, even edited by \
-reviewers, keep upstream's version and git rebase --skip the commit. For each step: edit the files to a correct merge, \
+reviewers, keep upstream's version and git rebase --skip the commit. Their status on GitHub \
+(sha, PR, state, newest feedback): ${PR_STATUS:-unknown}. Keep OPEN and CLOSED ones, adapting them to \
+upstream's current code. For each step: edit the files to a correct merge, \
 git add them, git rebase --continue. Use git rebase --skip only if the commit is already fully \
 upstream. Never git rebase --abort, never push. Finish with git status showing no rebase in progress." \
         --dangerously-skip-permissions ) || true
@@ -81,7 +84,17 @@ fi
 
 git fetch --quiet origin || fail "git fetch failed (network?)"
 behind="$(git rev-list --count "${MIRROR_BRANCH}..origin/${MIRROR_BRANCH}" 2>/dev/null || echo 0)"
-if [[ "$behind" == "0" && "${1:-}" != "--force" ]]; then
+
+# What happened to each PR the fork carries. Merged ones are upstream now, so their
+# fork copies are dropped instead of left for the rebase to trip over.
+PR_STATUS="$(scripts/vorssaint-dev-prs.sh --notify)"
+while IFS=$'\t' read -r _ n state note; do
+    [[ -n "${n:-}" ]] && log "PR $n: $state${note:+ (latest: ${note#* })}"
+done <<< "$PR_STATUS"
+merged="$(awk -F'\t' '$3 == "MERGED" { print $1 }' <<< "$PR_STATUS")"
+merged_prs="$(awk -F'\t' '$3 == "MERGED" { printf "%s#%s", sep, $2; sep = ", " }' <<< "$PR_STATUS")"
+
+if [[ "$behind" == "0" && -z "$merged" && "${1:-}" != "--force" ]]; then
     notify "Vorssaint is up to date" "No new upstream commits."
     exit 0
 fi
@@ -93,7 +106,17 @@ if [[ "$behind" != "0" ]]; then
         || fail "$MIRROR_BRANCH could not fast-forward (committed to it?)"
 fi
 
-if ! git rebase -q "$MIRROR_BRANCH"; then
+# Turn each merged PR's pick into a drop. The todo abbreviates to at least 7 characters.
+# GIT_EDITOR=true so neither this nor Claude's --continue waits on an editor.
+export GIT_EDITOR=true
+drop_merged="$(mktemp)"; trap 'rm -f "$drop_merged"' EXIT
+{
+    echo '#!/bin/sh'
+    for sha in $merged; do echo "sed -i '' -E 's/^pick ${sha:0:7}[0-9a-f]* /drop ${sha:0:7} /' \"\$1\""; done
+} > "$drop_merged"
+chmod +x "$drop_merged"
+[[ -n "$merged" ]] && log "Dropping merged PR commit(s): $merged_prs"
+if ! GIT_SEQUENCE_EDITOR="$drop_merged" git rebase -q -i "$MIRROR_BRANCH"; then
     notify "Vorssaint update: resolving conflicts" "Rebase hit conflicts, launching Claude…"
     resolve_rebase_with_claude || { git rebase --abort >/dev/null 2>&1; fail "rebase conflict not resolved, aborted; branch untouched"; }
 fi
@@ -129,4 +152,4 @@ rm -f /tmp/vorssaint-dev-update-available
 # Off-machine backup of the fork. A rebase rewrites the branch, hence the lease.
 git push --quiet --force-with-lease fork "$WORK_BRANCH" >>"$LOG" 2>&1 \
     || log "push to fork failed (not fatal), see $LOG"
-notify "Vorssaint updated" "Pulled $behind commit(s), rebuilt and reinstalled."
+notify "Vorssaint updated" "Pulled $behind commit(s), rebuilt and reinstalled.${merged_prs:+ Dropped merged $merged_prs.}"
