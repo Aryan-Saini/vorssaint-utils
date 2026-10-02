@@ -2298,6 +2298,8 @@ enum NotchTests {
         defaults.set(true, forKey: DefaultsKey.notchCalendarTimeLeft)
         suite.expect(!NotchCalendarSupport.showsCountdown(in: defaults) && NotchCalendarSupport.showsTimeLeft(in: defaults),
                      "time left in the event under way follows an opt-in of its own")
+        suite.expect(!NotchCalendarSupport.announcesInFullscreen(in: defaults),
+                     "a heads-up waits out a full-screen app unless the person lets it through")
         defaults.set(true, forKey: DefaultsKey.notchCalendarCountdown)
         defaults.set("calendar", forKey: DefaultsKey.notchHiddenModules)
         suite.expect(!NotchCalendarSupport.isEnabled(in: defaults), "hiding the calendar releases its resources")
@@ -2314,6 +2316,7 @@ enum NotchTests {
                                                                  DefaultsKey.notchCalendarCountdown,
                                                                  DefaultsKey.notchCalendarCountdownLead,
                                                                  DefaultsKey.notchCalendarTimeLeft,
+                                                                 DefaultsKey.notchCalendarAnnounceInFullscreen,
                                                                  AppFeature.notchCalendar.availabilityKey]),
                "calendar preferences travel in backup")
         suite.expect(SettingsBackupSupport.exportKeys().contains(DefaultsKey.notchCalendarExcluded),
@@ -2440,6 +2443,12 @@ enum NotchTests {
                      && stack.map { NotchCalendarSupport.stackTimeText($0, shown: $0.first, then: "then", locale: locale) }
                      == NotchCalendarSupport.timeText(all[0], locale: locale),
                      "beside the clock, a later start reads as \"then\" its time, and events together keep their own time")
+        let alone = NotchCalendarSupport.headsUp(Array(all.prefix(1)), announced: [])
+        let joined = NotchCalendarSupport.headsUp(Array(all.prefix(2)), announced: alone.starts)
+        let again = NotchCalendarSupport.headsUp(Array(all.prefix(2)), announced: joined.starts)
+        suite.expect(!alone.announces && joined.announces && !again.announces
+                     && NotchCalendarSupport.headsUp(all, announced: joined.starts).announces,
+                     "the island opens when a start joins another countdown, once per start, never for one alone")
         suite.expect(NotchCalendarSupport.stackDotsWidth(1) == NotchCalendarSupport.stripDotWidth
                      && NotchCalendarSupport.stackDotsWidth(3) == NotchCalendarSupport.stackDotsWidth(9)
                      && NotchCalendarSupport.stackDotsWidth(2) > NotchCalendarSupport.stackDotsWidth(1),

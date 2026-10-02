@@ -289,21 +289,25 @@ struct NotchCalendarView: View {
 }
 
 /// The events counting down, each with its own clock, under "Up next" and,
-/// when they start together, a line that says so.
-private struct NotchCalendarUpNext: View {
+/// when they start together, a line that says so. The Calendar page shows
+/// every one; the heads-up card under the closed island shows `limit` and
+/// counts the rest.
+struct NotchCalendarUpNext: View {
     let stack: NotchCalendarStack
     let text: NotchCalendarStrings
+    var limit: Int? = nil
     let open: (NotchCalendarEvent) -> Void
 
     private typealias Layout = NotchCalendarUpNextLayout
 
     var body: some View {
+        let shown = Array(stack.countdowns.prefix(limit ?? .max))
         VStack(alignment: .leading, spacing: Layout.spacing) {
             label(text.next, color: .white.opacity(0.7))
             if stack.together.count > 1 { label(text.together, color: .orange) }
             TimelineView(.periodic(from: .now, by: 1)) { context in
                 VStack(spacing: 0) {
-                    ForEach(Array(stack.countdowns.enumerated()), id: \.offset) { index, countdown in
+                    ForEach(Array(shown.enumerated()), id: \.offset) { index, countdown in
                         row(countdown, now: context.date)
                             .frame(height: Layout.rowHeight)
                             .overlay(alignment: .top) {
@@ -311,6 +315,9 @@ private struct NotchCalendarUpNext: View {
                             }
                     }
                 }
+            }
+            if shown.count < stack.countdowns.count {
+                label("+\(stack.countdowns.count - shown.count)", color: .white.opacity(0.7))
             }
         }
         .accessibilityElement(children: .contain)

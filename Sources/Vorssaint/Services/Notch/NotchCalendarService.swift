@@ -58,6 +58,15 @@ final class NotchCalendarService: NSObject, ObservableObject {
     /// The nearest countdown, which sizes the strip and drives the clock.
     var countdown: NotchCalendarCountdown? { countdowns.first }
     var stack: NotchCalendarStack? { NotchCalendarStack(countdowns) }
+    /// Fires when a start joins countdowns already showing, so a second
+    /// meeting at the same time is announced instead of waiting unseen.
+    let headsUp = PassthroughSubject<Void, Never>()
+    /// Starts already counted down, by event id, so each is announced once.
+    private var announced = Set<String>()
+    /// What the last read announces, held until the island shows it: an
+    /// island hidden over full screen announces it once it can.
+    private var pendingAnnouncement: Set<String>?
+    var hasPendingHeadsUp: Bool { pendingAnnouncement != nil }
     @Published private(set) var loading = false
     /// Countdown keys of the events chosen from their menu.
     @Published private(set) var chosenCountdowns = Set<String>()
@@ -189,6 +198,7 @@ final class NotchCalendarService: NSObject, ObservableObject {
                 currentEvents, now: now, starts: self.countdownEnabled, ends: self.timeLeftEnabled,
                 chosen: self.chosenCountdowns, leadTime: self.countdownLeadTime)
             if countdowns != self.countdowns { self.countdowns = countdowns }
+            self.announce(countdowns)
             self.loading = false
             self.task = nil
             let agendaRefresh = NotchCalendarSupport.nextRefresh(self.events, now: now)
@@ -206,6 +216,25 @@ final class NotchCalendarService: NSObject, ObservableObject {
     }
 
     @objc private func timedRefresh() { refresh() }
+
+    private func announce(_ countdowns: [NotchCalendarCountdown]) {
+        let (announces, starts) = NotchCalendarSupport.headsUp(countdowns, announced: announced)
+        if announces {
+            pendingAnnouncement = starts
+            headsUp.send()
+        } else {
+            // Nothing new, or what waited has started or passed its window.
+            pendingAnnouncement = nil
+            announced = starts
+        }
+    }
+
+    /// The island showed the heads-up, so what it announced is not announced again.
+    func headsUpShown() {
+        guard let pendingAnnouncement else { return }
+        announced = pendingAnnouncement
+        self.pendingAnnouncement = nil
+    }
 
     /// A chosen event read again keeps its current end, and one that has
     /// ended is forgotten. Only the week holding every countdown the island
@@ -232,6 +261,8 @@ final class NotchCalendarService: NSObject, ObservableObject {
         timeLeftEnabled = false
         excludedCalendars = []
         if !chosenCountdowns.isEmpty { chosenCountdowns = [] }
+        announced = []
+        pendingAnnouncement = nil
         events = []; countdowns = []; loading = false
     }
 }
