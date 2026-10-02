@@ -225,6 +225,8 @@ enum NotchPresentationRefreshContract {
         var noticeWork: DispatchWorkItem?, departureWork: DispatchWorkItem?
         func mascotNoticeBridgeBackStart(from ending: NotchNotice?) -> CGFloat? { nil }
         func bridgeMascotHome(from offset: CGFloat) {}
+        var calendarHeadsUp = false
+        var calendarHeadsUpSize = CGSize.zero
         var captureControls: CaptureOptions?
         var captureControlsCollapsed = false, captureSelectionInProgress = false
         var inside = false, trackingMenu = false
