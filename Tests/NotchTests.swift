@@ -2690,6 +2690,41 @@ enum NotchTests {
         suite.expect(shortest == 5 * 60 && NotchCalendarSupport.countdownLeadTime(in: defaults) == 240 * 60,
                      "a restored or hand-edited lead stays between five minutes and four hours")
         defaults.removeObject(forKey: DefaultsKey.notchCalendarCountdownLead)
+        // Two meetings at once and one 15 minutes later: none of them may go unseen.
+        let pcf = event("pcf", 300, 2100)
+        let krista = event("krista", 300, 2400)
+        let sync = event("sync", 1200, 3000)
+        let all = NotchCalendarSupport.countdowns([sync, krista, pcf], now: now, starts: true, ends: false,
+                                                  leadTime: hour)
+        suite.expect(all.map(\.event.id) == ["pcf", "krista", "sync"]
+                     && countdownFor([sync, krista, pcf]) == all.first,
+                     "every start in the lead counts down, nearest first, and the strip's countdown is the first")
+        let stack = NotchCalendarStack(all)
+        suite.expect(NotchCalendarStack([]) == nil && stack?.others == 2
+                     && stack?.together.map(\.event.id) == ["pcf", "krista"] && stack?.then == nil,
+                     "a stack keeps the events sharing the nearest start together, with a +2 for the rest")
+        let turn = NotchCalendarStack.turn
+        let base = Date(timeIntervalSinceReferenceDate: 1_000 * turn)
+        suite.expect(stack?.shown(at: base).event.id == "pcf"
+                     && stack?.shown(at: base.addingTimeInterval(turn - 1)).event.id == "pcf"
+                     && stack?.shown(at: base.addingTimeInterval(turn)).event.id == "krista"
+                     && stack?.shown(at: base.addingTimeInterval(2 * turn)).event.id == "pcf",
+                     "events starting together take turns on the strip every few seconds")
+        let staggered = NotchCalendarStack(NotchCalendarSupport.countdowns(
+            [pcf, sync], now: now, starts: true, ends: false, leadTime: hour))
+        let locale = Locale(identifier: "en_US")
+        suite.expect(staggered?.together.count == 1 && staggered?.then?.event == sync
+                     && staggered.map { $0.shown(at: base).event } == pcf,
+                     "a later start does not take turns; it follows the nearest one")
+        suite.expect(staggered.map { NotchCalendarSupport.stackTimeText($0, shown: $0.first, then: "then", locale: locale) }
+                     == "·\u{2009}then " + sync.start.formatted(.dateTime.hour().minute().locale(locale))
+                     && stack.map { NotchCalendarSupport.stackTimeText($0, shown: $0.first, then: "then", locale: locale) }
+                     == NotchCalendarSupport.timeText(all[0], locale: locale),
+                     "beside the clock, a later start reads as \"then\" its time, and events together keep their own time")
+        suite.expect(NotchCalendarSupport.stackDotsWidth(1) == NotchCalendarSupport.stripDotWidth
+                     && NotchCalendarSupport.stackDotsWidth(3) == NotchCalendarSupport.stackDotsWidth(9)
+                     && NotchCalendarSupport.stackDotsWidth(2) > NotchCalendarSupport.stackDotsWidth(1),
+                     "each countdown adds an overlapping dot, up to three")
         // A meeting that ends in 30 minutes, 15 minutes before the next one starts.
         let meeting = event("meeting", -1800, 1800)
         let afterGap = event("after gap", 2700, 4500)
