@@ -47,6 +47,9 @@ struct NotchCalendarStrings {
     let then: String
     /// Heads the countdowns on the Calendar page when two or more start at once.
     let together: String
+    /// Lets a calendar heads-up open the island over a full-screen app.
+    let announceInFullscreen: String
+    let announceInFullscreenHint: String
 }
 
 extension FeatureStrings {
@@ -86,7 +89,9 @@ extension FeatureStrings {
             weekNumber: "Week %d",
             calendars: "Calendars shown",
             then: "then",
-            together: "Starting at the same time")
+            together: "Starting at the same time",
+            announceInFullscreen: "Announce in full screen",
+            announceInFullscreenHint: "Show calendar heads-ups even over a full-screen app. Otherwise they wait until you leave full screen.")
         case .ptBR: return NotchCalendarStrings(
             title: "Calendário",
             description: "Veja o mês e seus próximos compromissos no Dynamic Island.",
@@ -121,7 +126,9 @@ extension FeatureStrings {
             weekNumber: "Semana %d",
             calendars: "Calendários exibidos",
             then: "depois",
-            together: "Começam ao mesmo tempo")
+            together: "Começam ao mesmo tempo",
+            announceInFullscreen: "Avisar em tela cheia",
+            announceInFullscreenHint: "Mostra os avisos do calendário mesmo sobre um app em tela cheia. Caso contrário, eles esperam você sair da tela cheia.")
         case .es: return NotchCalendarStrings(
             title: "Calendario",
             description: "Consulta el mes y tus próximas citas en el Dynamic Island.",
@@ -156,7 +163,9 @@ extension FeatureStrings {
             weekNumber: "Semana %d",
             calendars: "Calendarios mostrados",
             then: "luego",
-            together: "Empiezan a la vez")
+            together: "Empiezan a la vez",
+            announceInFullscreen: "Avisar en pantalla completa",
+            announceInFullscreenHint: "Muestra los avisos del calendario incluso sobre una app en pantalla completa. Si no, esperan a que salgas de la pantalla completa.")
         case .sk: return NotchCalendarStrings(
             title: "Kalendár",
             description: "Prezerajte mesiac a nadchádzajúce stretnutia v Dynamic Island.",
@@ -191,7 +200,9 @@ extension FeatureStrings {
             weekNumber: "%d. týždeň",
             calendars: "Zobrazené kalendáre",
             then: "potom",
-            together: "Začínajú naraz")
+            together: "Začínajú naraz",
+            announceInFullscreen: "Oznamovať na celej obrazovke",
+            announceInFullscreenHint: "Zobrazí upozornenia kalendára aj nad aplikáciou na celej obrazovke. Inak počkajú, kým celú obrazovku opustíte.")
         case .de: return NotchCalendarStrings(
             title: "Kalender",
             description: "Den Monat und deine nächsten Termine im Dynamic Island ansehen.",
@@ -226,7 +237,9 @@ extension FeatureStrings {
             weekNumber: "Kalenderwoche %d",
             calendars: "Angezeigte Kalender",
             then: "dann",
-            together: "Beginnen gleichzeitig")
+            together: "Beginnen gleichzeitig",
+            announceInFullscreen: "Im Vollbild ankündigen",
+            announceInFullscreenHint: "Zeigt Kalenderhinweise auch über einer Vollbild-App. Sonst warten sie, bis du das Vollbild verlässt.")
         case .fr: return NotchCalendarStrings(
             title: "Calendrier",
             description: "Consultez le mois et vos prochains rendez-vous dans le Dynamic Island.",
@@ -261,7 +274,9 @@ extension FeatureStrings {
             weekNumber: "Semaine %d",
             calendars: "Calendriers affichés",
             then: "puis",
-            together: "Commencent en même temps")
+            together: "Commencent en même temps",
+            announceInFullscreen: "Annoncer en plein écran",
+            announceInFullscreenHint: "Affiche les alertes du calendrier même au-dessus d’une app en plein écran. Sinon, elles attendent que vous quittiez le plein écran.")
         case .it: return NotchCalendarStrings(
             title: "Calendario",
             description: "Consulta il mese e i prossimi appuntamenti nel Dynamic Island.",
@@ -296,7 +311,9 @@ extension FeatureStrings {
             weekNumber: "Settimana %d",
             calendars: "Calendari mostrati",
             then: "poi",
-            together: "Iniziano insieme")
+            together: "Iniziano insieme",
+            announceInFullscreen: "Avvisa a schermo intero",
+            announceInFullscreenHint: "Mostra gli avvisi del calendario anche sopra un’app a schermo intero. Altrimenti attendono che esci dallo schermo intero.")
         case .ru: return NotchCalendarStrings(
             title: "Календарь",
             description: "Просматривайте месяц и ближайшие встречи в вырезе экрана.",
@@ -331,7 +348,9 @@ extension FeatureStrings {
             weekNumber: "Неделя %d",
             calendars: "Показываемые календари",
             then: "затем",
-            together: "Начинаются одновременно")
+            together: "Начинаются одновременно",
+            announceInFullscreen: "Оповещать в полноэкранном режиме",
+            announceInFullscreenHint: "Показывает напоминания календаря даже поверх полноэкранного приложения. Иначе они ждут выхода из полноэкранного режима.")
         case .tr: return NotchCalendarStrings(
             title: "Takvim",
             description: "Ayı ve yaklaşan randevularınızı çentikte görüntüleyin.",
@@ -366,7 +385,9 @@ extension FeatureStrings {
             weekNumber: "%d. hafta",
             calendars: "Gösterilen takvimler",
             then: "sonra",
-            together: "Aynı anda başlıyor")
+            together: "Aynı anda başlıyor",
+            announceInFullscreen: "Tam ekranda duyur",
+            announceInFullscreenHint: "Takvim uyarılarını tam ekran bir uygulamanın üzerinde bile gösterir. Aksi halde tam ekrandan çıkmanı beklerler.")
         case .ja: return NotchCalendarStrings(
             title: "カレンダー",
             description: "Dynamic Islandで月のカレンダーと今後の予定を確認できます。",
@@ -401,7 +422,9 @@ extension FeatureStrings {
             weekNumber: "第%d週",
             calendars: "表示するカレンダー",
             then: "次",
-            together: "同時に開始")
+            together: "同時に開始",
+            announceInFullscreen: "フルスクリーンでも通知",
+            announceInFullscreenHint: "フルスクリーンのアプリの上でもカレンダーのお知らせを表示します。オフの場合はフルスクリーンを終了するまで待ちます。")
         case .ko: return NotchCalendarStrings(
             title: "캘린더",
             description: "Dynamic Island에서 월별 달력과 다가오는 일정을 확인하세요.",
@@ -436,7 +459,9 @@ extension FeatureStrings {
             weekNumber: "%d주차",
             calendars: "표시할 캘린더",
             then: "다음",
-            together: "동시에 시작")
+            together: "동시에 시작",
+            announceInFullscreen: "전체 화면에서도 알림",
+            announceInFullscreenHint: "전체 화면 앱 위에서도 캘린더 알림을 표시합니다. 끄면 전체 화면을 나갈 때까지 기다립니다.")
         case .zhHans: return NotchCalendarStrings(
             title: "日历",
             description: "在Dynamic Island中浏览月历和即将开始的日程。",
@@ -471,7 +496,9 @@ extension FeatureStrings {
             weekNumber: "第%d周",
             calendars: "显示的日历",
             then: "接着",
-            together: "同时开始")
+            together: "同时开始",
+            announceInFullscreen: "全屏时也提醒",
+            announceInFullscreenHint: "即使在全屏 App 上方也显示日历提醒。否则会等你退出全屏。")
         case .zhTW: return NotchCalendarStrings(
             title: "行事曆",
             description: "在Dynamic Island中瀏覽月曆與即將到來的行程。",
@@ -506,7 +533,9 @@ extension FeatureStrings {
             weekNumber: "第%d週",
             calendars: "顯示的行事曆",
             then: "接著",
-            together: "同時開始")
+            together: "同時開始",
+            announceInFullscreen: "全螢幕時也提醒",
+            announceInFullscreenHint: "即使在全螢幕 App 上方也顯示行事曆提醒。否則會等你離開全螢幕。")
         case .zhHK: return NotchCalendarStrings(
             title: "日曆",
             description: "在Dynamic Island中瀏覽月曆及即將到來的行程。",
@@ -541,7 +570,9 @@ extension FeatureStrings {
             weekNumber: "第%d週",
             calendars: "顯示的日曆",
             then: "接著",
-            together: "同時開始")
+            together: "同時開始",
+            announceInFullscreen: "全螢幕時也提醒",
+            announceInFullscreenHint: "即使在全螢幕 App 上方也顯示日曆提醒。否則會等你離開全螢幕。")
         case .uk: return NotchCalendarStrings(
             title: "Календар",
             description: "Переглядайте місяць та майбутні події у Dynamic Island.",
@@ -576,7 +607,9 @@ extension FeatureStrings {
             weekNumber: "Тиждень %d",
             calendars: "Календарі для показу",
             then: "потім",
-            together: "Починаються одночасно")
+            together: "Починаються одночасно",
+            announceInFullscreen: "Сповіщати в повноекранному режимі",
+            announceInFullscreenHint: "Показує нагадування календаря навіть поверх повноекранної програми. Інакше вони чекають, доки ви вийдете з повноекранного режиму.")
         }
     }
 }
