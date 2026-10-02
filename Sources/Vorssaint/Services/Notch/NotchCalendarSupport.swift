@@ -74,11 +74,20 @@ struct NotchCalendarStack: Equatable, Sendable {
     }
 }
 
-/// Measures of the Up next list on the Calendar page.
+/// The heads-up card under the closed island and the Up next list share
+/// these measures, so the island sizes the card to what it draws.
 enum NotchCalendarUpNextLayout {
+    /// Rows the heads-up card shows; the rest read as "+N".
+    static let headsUpRows = 3
     static let rowHeight: CGFloat = 44
     static let labelHeight: CGFloat = 14
     static let spacing: CGFloat = 6
+
+    static func height(_ stack: NotchCalendarStack, limit: Int?) -> CGFloat {
+        let shown = min(stack.countdowns.count, limit ?? .max)
+        let labels = 1 + (stack.together.count > 1 ? 1 : 0) + (shown < stack.countdowns.count ? 1 : 0)
+        return CGFloat(labels) * (labelHeight + spacing) + CGFloat(shown) * rowHeight
+    }
 }
 
 /// One calendar offered in Settings, grouped under its account like Calendar.app.
@@ -195,6 +204,12 @@ enum NotchCalendarSupport {
 
     static func startsWeek(_ date: Date, calendar: Calendar = .current) -> Bool {
         calendar.component(.weekday, from: date) == calendar.firstWeekday
+    }
+
+    /// Whether a heads-up opens the island over a full-screen app that
+    /// otherwise hides it.
+    static func announcesInFullscreen(in defaults: UserDefaults = .standard) -> Bool {
+        defaults.bool(forKey: DefaultsKey.notchCalendarAnnounceInFullscreen)
     }
 
     /// Names the event a countdown was chosen for across refreshes, edits and
@@ -372,6 +387,16 @@ enum NotchCalendarSupport {
     static func timeText(_ countdown: NotchCalendarCountdown, locale: Locale) -> String {
         (countdown.ongoing ? "→\u{2009}" : "·\u{2009}")
             + countdown.target.formatted(.dateTime.hour().minute().locale(locale))
+    }
+
+    /// Whether the island announces `countdowns`: a start new since the
+    /// last read that joins another countdown. A start alone needs no
+    /// heads-up, the strip shows it. Returns the starts to remember, so each
+    /// is announced once.
+    static func headsUp(_ countdowns: [NotchCalendarCountdown],
+                        announced: Set<String>) -> (announces: Bool, starts: Set<String>) {
+        let ids = Set(countdowns.filter { !$0.ongoing }.map(\.event.id))
+        return (!ids.subtracting(announced).isEmpty && countdowns.count > 1, ids)
     }
 
     /// Beside the clock when a later event follows the one counting down:
