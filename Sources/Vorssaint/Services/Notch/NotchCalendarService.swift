@@ -28,7 +28,9 @@ private actor NotchCalendarReader {
                                       start: start, end: end, allDay: event.isAllDay,
                                       location: event.location ?? "", color: Self.tint(event.calendar),
                                       calendarItemIdentifier: event.calendarItemIdentifier,
-                                      recurring: recurring, countdownKey: countdownKey)
+                                      recurring: recurring, countdownKey: countdownKey,
+                                      meeting: NotchMeetingLink.find(url: event.url, location: event.location ?? "",
+                                                                     notes: event.notes ?? ""))
         }
     }
 
@@ -198,14 +200,15 @@ final class NotchCalendarService: NSObject, ObservableObject {
                 currentEvents, now: now, starts: self.countdownEnabled, ends: self.timeLeftEnabled,
                 chosen: self.chosenCountdowns, leadTime: self.countdownLeadTime)
             if countdowns != self.countdowns { self.countdowns = countdowns }
-            self.announce(countdowns)
+            self.announce(countdowns, now: now)
             self.loading = false
             self.task = nil
             let agendaRefresh = NotchCalendarSupport.nextRefresh(self.events, now: now)
             let countdownRefresh = NotchCalendarSupport.countdownTransition(
                 currentEvents, now: now, starts: self.countdownEnabled, ends: self.timeLeftEnabled,
                 chosen: self.chosenCountdowns, leadTime: self.countdownLeadTime)
-            let nextRefresh = min(agendaRefresh, countdownRefresh ?? agendaRefresh)
+            let joinRefresh = NotchCalendarSupport.joinTransition(countdowns, now: now)
+            let nextRefresh = [agendaRefresh, countdownRefresh, joinRefresh].compactMap { $0 }.min() ?? agendaRefresh
             let timer = Timer(fireAt: nextRefresh,
                               interval: 0, target: self, selector: #selector(self.timedRefresh),
                               userInfo: nil, repeats: false)
@@ -217,8 +220,8 @@ final class NotchCalendarService: NSObject, ObservableObject {
 
     @objc private func timedRefresh() { refresh() }
 
-    private func announce(_ countdowns: [NotchCalendarCountdown]) {
-        let (announces, starts) = NotchCalendarSupport.headsUp(countdowns, announced: announced)
+    private func announce(_ countdowns: [NotchCalendarCountdown], now: Date) {
+        let (announces, starts) = NotchCalendarSupport.headsUp(countdowns, announced: announced, now: now)
         if announces {
             pendingAnnouncement = starts
             headsUp.send()
