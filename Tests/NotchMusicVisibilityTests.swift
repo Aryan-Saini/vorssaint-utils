@@ -87,6 +87,8 @@ enum NotchMusicVisibilityTests {
         var captureClosesOnCollapse = false
         var notice: NotchNotice?
         var noticeExpanded = false
+        var calendarHeadsUp = false
+        var calendarHeadsUpSize = CGSize.zero
         var noticeWork: DispatchWorkItem?
         var dragPlaceholder = false
         var hasTimerActivity = false
