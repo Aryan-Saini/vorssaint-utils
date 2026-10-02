@@ -26,6 +26,8 @@ struct NotchCalendarEvent: Equatable, Identifiable, Sendable {
     /// How a countdown chosen from the event's menu remembers it; see
     /// `NotchCalendarSupport.countdownKey`.
     var countdownKey = ""
+    /// The video call its URL, location or notes link to, if any.
+    var meeting: NotchMeetingLink?
 }
 
 /// What the closed island counts down to: an event's start or, while the
@@ -372,14 +374,25 @@ enum NotchCalendarSupport {
             + countdown.target.formatted(.dateTime.hour().minute().locale(locale))
     }
 
-    /// Whether the island announces `countdowns`: a start new since the
-    /// last read that joins another countdown. A start alone needs no
-    /// heads-up, the strip shows it. Returns the starts to remember, so each
-    /// is announced once.
-    static func headsUp(_ countdowns: [NotchCalendarCountdown],
-                        announced: Set<String>) -> (announces: Bool, starts: Set<String>) {
-        let ids = Set(countdowns.filter { !$0.ongoing }.map(\.event.id))
-        return (!ids.subtracting(announced).isEmpty && countdowns.count > 1, ids)
+    /// Whether the island opens to announce `countdowns`: a start new since
+    /// the last read that joins another countdown, or a call whose join
+    /// window just opened. A start alone needs no heads-up, the strip shows
+    /// it. Returns what to remember, so each is announced once.
+    static func headsUp(_ countdowns: [NotchCalendarCountdown], announced: Set<String>,
+                        now: Date) -> (announces: Bool, starts: Set<String>) {
+        let starts = countdowns.filter { !$0.ongoing }
+        let ids = Set(starts.map(\.event.id))
+        let joins = Set(starts.filter { NotchMeetingLink.isJoinable($0.event, now: now) }.map { "join:" + $0.event.id })
+        let joined = !ids.subtracting(announced).isEmpty && countdowns.count > 1
+        return (joined || !joins.subtracting(announced).isEmpty, ids.union(joins))
+    }
+
+    /// When the join window opens for a call counting down, so the island
+    /// reads again then and offers to join.
+    static func joinTransition(_ countdowns: [NotchCalendarCountdown], now: Date) -> Date? {
+        countdowns.filter { !$0.ongoing && $0.event.meeting != nil }
+            .map { $0.event.start.addingTimeInterval(-NotchMeetingLink.joinLead) }
+            .filter { $0 > now }.min()
     }
 
     /// Beside the clock when a later event follows the one counting down:

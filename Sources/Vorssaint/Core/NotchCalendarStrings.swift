@@ -43,6 +43,12 @@ struct NotchCalendarStrings {
     let then: String
     /// Heads the countdowns on the Calendar page when two or more start at once.
     let together: String
+    /// Joins an event's video call from the island.
+    let join: String
+    /// In the Join button's menu: copies the call's link.
+    let copyLink: String
+    /// In the Join button's menu: opens the call's page instead of its app.
+    let openInBrowser: String
     /// Lets a calendar heads-up open the island over a full-screen app.
     let announceInFullscreen: String
     let announceInFullscreenHint: String
@@ -84,6 +90,9 @@ extension FeatureStrings {
             calendars: "Calendars shown",
             then: "then",
             together: "Starting at the same time",
+            join: "Join",
+            copyLink: "Copy Link",
+            openInBrowser: "Open in Browser",
             announceInFullscreen: "Announce in full screen",
             announceInFullscreenHint: "Show calendar heads-ups even over a full-screen app. Otherwise they wait until you leave full screen.")
         case .ptBR: return NotchCalendarStrings(
@@ -119,6 +128,9 @@ extension FeatureStrings {
             calendars: "Calendários exibidos",
             then: "depois",
             together: "Começam ao mesmo tempo",
+            join: "Entrar",
+            copyLink: "Copiar link",
+            openInBrowser: "Abrir no navegador",
             announceInFullscreen: "Avisar em tela cheia",
             announceInFullscreenHint: "Mostra os avisos do calendário mesmo sobre um app em tela cheia. Caso contrário, eles esperam você sair da tela cheia.")
         case .es: return NotchCalendarStrings(
@@ -154,6 +166,9 @@ extension FeatureStrings {
             calendars: "Calendarios mostrados",
             then: "luego",
             together: "Empiezan a la vez",
+            join: "Unirse",
+            copyLink: "Copiar enlace",
+            openInBrowser: "Abrir en el navegador",
             announceInFullscreen: "Avisar en pantalla completa",
             announceInFullscreenHint: "Muestra los avisos del calendario incluso sobre una app en pantalla completa. Si no, esperan a que salgas de la pantalla completa.")
         case .sk: return NotchCalendarStrings(
@@ -189,6 +204,9 @@ extension FeatureStrings {
             calendars: "Zobrazené kalendáre",
             then: "potom",
             together: "Začínajú naraz",
+            join: "Pripojiť sa",
+            copyLink: "Kopírovať odkaz",
+            openInBrowser: "Otvoriť v prehliadači",
             announceInFullscreen: "Oznamovať na celej obrazovke",
             announceInFullscreenHint: "Zobrazí upozornenia kalendára aj nad aplikáciou na celej obrazovke. Inak počkajú, kým celú obrazovku opustíte.")
         case .de: return NotchCalendarStrings(
@@ -224,6 +242,9 @@ extension FeatureStrings {
             calendars: "Angezeigte Kalender",
             then: "dann",
             together: "Beginnen gleichzeitig",
+            join: "Beitreten",
+            copyLink: "Link kopieren",
+            openInBrowser: "Im Browser öffnen",
             announceInFullscreen: "Im Vollbild ankündigen",
             announceInFullscreenHint: "Zeigt Kalenderhinweise auch über einer Vollbild-App. Sonst warten sie, bis du das Vollbild verlässt.")
         case .fr: return NotchCalendarStrings(
@@ -259,6 +280,9 @@ extension FeatureStrings {
             calendars: "Calendriers affichés",
             then: "puis",
             together: "Commencent en même temps",
+            join: "Rejoindre",
+            copyLink: "Copier le lien",
+            openInBrowser: "Ouvrir dans le navigateur",
             announceInFullscreen: "Annoncer en plein écran",
             announceInFullscreenHint: "Affiche les alertes du calendrier même au-dessus d’une app en plein écran. Sinon, elles attendent que vous quittiez le plein écran.")
         case .it: return NotchCalendarStrings(
@@ -294,6 +318,9 @@ extension FeatureStrings {
             calendars: "Calendari mostrati",
             then: "poi",
             together: "Iniziano insieme",
+            join: "Partecipa",
+            copyLink: "Copia link",
+            openInBrowser: "Apri nel browser",
             announceInFullscreen: "Avvisa a schermo intero",
             announceInFullscreenHint: "Mostra gli avvisi del calendario anche sopra un’app a schermo intero. Altrimenti attendono che esci dallo schermo intero.")
         case .ru: return NotchCalendarStrings(
@@ -329,6 +356,9 @@ extension FeatureStrings {
             calendars: "Показываемые календари",
             then: "затем",
             together: "Начинаются одновременно",
+            join: "Подключиться",
+            copyLink: "Скопировать ссылку",
+            openInBrowser: "Открыть в браузере",
             announceInFullscreen: "Оповещать в полноэкранном режиме",
             announceInFullscreenHint: "Показывает напоминания календаря даже поверх полноэкранного приложения. Иначе они ждут выхода из полноэкранного режима.")
         case .tr: return NotchCalendarStrings(
@@ -364,6 +394,9 @@ extension FeatureStrings {
             calendars: "Gösterilen takvimler",
             then: "sonra",
             together: "Aynı anda başlıyor",
+            join: "Katıl",
+            copyLink: "Bağlantıyı kopyala",
+            openInBrowser: "Tarayıcıda aç",
             announceInFullscreen: "Tam ekranda duyur",
             announceInFullscreenHint: "Takvim uyarılarını tam ekran bir uygulamanın üzerinde bile gösterir. Aksi halde tam ekrandan çıkmanı beklerler.")
         case .ja: return NotchCalendarStrings(
@@ -399,6 +432,9 @@ extension FeatureStrings {
             calendars: "表示するカレンダー",
             then: "次",
             together: "同時に開始",
+            join: "参加",
+            copyLink: "リンクをコピー",
+            openInBrowser: "ブラウザで開く",
             announceInFullscreen: "フルスクリーンでも通知",
             announceInFullscreenHint: "フルスクリーンのアプリの上でもカレンダーのお知らせを表示します。オフの場合はフルスクリーンを終了するまで待ちます。")
         case .ko: return NotchCalendarStrings(
@@ -434,6 +470,9 @@ extension FeatureStrings {
             calendars: "표시할 캘린더",
             then: "다음",
             together: "동시에 시작",
+            join: "참가",
+            copyLink: "링크 복사",
+            openInBrowser: "브라우저에서 열기",
             announceInFullscreen: "전체 화면에서도 알림",
             announceInFullscreenHint: "전체 화면 앱 위에서도 캘린더 알림을 표시합니다. 끄면 전체 화면을 나갈 때까지 기다립니다.")
         case .zhHans: return NotchCalendarStrings(
@@ -469,6 +508,9 @@ extension FeatureStrings {
             calendars: "显示的日历",
             then: "接着",
             together: "同时开始",
+            join: "加入",
+            copyLink: "拷贝链接",
+            openInBrowser: "在浏览器中打开",
             announceInFullscreen: "全屏时也提醒",
             announceInFullscreenHint: "即使在全屏 App 上方也显示日历提醒。否则会等你退出全屏。")
         case .zhTW: return NotchCalendarStrings(
@@ -504,6 +546,9 @@ extension FeatureStrings {
             calendars: "顯示的行事曆",
             then: "接著",
             together: "同時開始",
+            join: "加入",
+            copyLink: "拷貝連結",
+            openInBrowser: "在瀏覽器中打開",
             announceInFullscreen: "全螢幕時也提醒",
             announceInFullscreenHint: "即使在全螢幕 App 上方也顯示行事曆提醒。否則會等你離開全螢幕。")
         case .zhHK: return NotchCalendarStrings(
@@ -539,6 +584,9 @@ extension FeatureStrings {
             calendars: "顯示的日曆",
             then: "接著",
             together: "同時開始",
+            join: "加入",
+            copyLink: "複製連結",
+            openInBrowser: "在瀏覽器中開啟",
             announceInFullscreen: "全螢幕時也提醒",
             announceInFullscreenHint: "即使在全螢幕 App 上方也顯示日曆提醒。否則會等你離開全螢幕。")
         case .uk: return NotchCalendarStrings(
@@ -574,6 +622,9 @@ extension FeatureStrings {
             calendars: "Календарі для показу",
             then: "потім",
             together: "Починаються одночасно",
+            join: "Приєднатися",
+            copyLink: "Скопіювати посилання",
+            openInBrowser: "Відкрити в браузері",
             announceInFullscreen: "Сповіщати в повноекранному режимі",
             announceInFullscreenHint: "Показує нагадування календаря навіть поверх повноекранної програми. Інакше вони чекають, доки ви вийдете з повноекранного режиму.")
         }

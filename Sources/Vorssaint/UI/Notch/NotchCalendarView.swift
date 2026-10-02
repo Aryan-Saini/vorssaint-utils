@@ -188,7 +188,8 @@ struct NotchCalendarView: View {
     /// together and Join is at the top.
     private func appointmentList(now: Date) -> some View {
         VStack(alignment: .leading, spacing: 14) {
-            if let stack = calendar.stack, stack.countdowns.count > 1 {
+            if let stack = calendar.stack,
+               stack.countdowns.count > 1 || NotchMeetingLink.isJoinable(stack.first.event, now: now) {
                 NotchCalendarUpNext(stack: stack, text: text) { openCalendar(showing: $0) }
             }
             agenda(now: now)
@@ -360,6 +361,9 @@ struct NotchCalendarUpNext: View {
             .accessibilityLabel("\(countdown.ongoing ? text.ongoing : text.next): \(title)")
             .accessibilityValue(NotchCalendarSupport.countdownAccessibilityText(until: countdown.target, now: now,
                                                                                 locale: .current))
+            if let meeting = event.meeting, NotchMeetingLink.isJoinable(event, now: now) {
+                NotchMeetingJoinButton(meeting: meeting, text: text) { open(event) }
+            }
         }
     }
 }
@@ -405,7 +409,12 @@ private struct NotchCalendarEventRow: View {
             .help(text.openCalendar)
             .accessibilityHint(text.openCalendar)
             .modifier(NotchCountdownChoice(chosen: countdown, text: text, choose: choose))
-
+            // Five minutes before the call, and until it ends.
+            .overlay(alignment: .topTrailing) {
+                if let meeting = event.meeting, NotchMeetingLink.isJoinable(event, now: now) {
+                    NotchMeetingJoinButton(meeting: meeting, text: text, viewEvent: open).padding(8)
+                }
+            }
     }
 
     private var card: some View {
@@ -420,6 +429,8 @@ private struct NotchCalendarEventRow: View {
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(.white.opacity(ended ? 0.65 : 1))
                 .fixedSize(horizontal: false, vertical: true)
+                // Clear of the Join button in the card's corner.
+                .padding(.trailing, NotchMeetingLink.isJoinable(event, now: now) && !(ongoing || isNext) ? 84 : 0)
             HStack(alignment: .firstTextBaseline, spacing: 5) {
                 Group {
                     if event.allDay {

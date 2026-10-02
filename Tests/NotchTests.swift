@@ -2443,12 +2443,49 @@ enum NotchTests {
                      && stack.map { NotchCalendarSupport.stackTimeText($0, shown: $0.first, then: "then", locale: locale) }
                      == NotchCalendarSupport.timeText(all[0], locale: locale),
                      "beside the clock, a later start reads as \"then\" its time, and events together keep their own time")
-        let alone = NotchCalendarSupport.headsUp(Array(all.prefix(1)), announced: [])
-        let joined = NotchCalendarSupport.headsUp(Array(all.prefix(2)), announced: alone.starts)
-        let again = NotchCalendarSupport.headsUp(Array(all.prefix(2)), announced: joined.starts)
+        let alone = NotchCalendarSupport.headsUp(Array(all.prefix(1)), announced: [], now: now)
+        let joined = NotchCalendarSupport.headsUp(Array(all.prefix(2)), announced: alone.starts, now: now)
+        let again = NotchCalendarSupport.headsUp(Array(all.prefix(2)), announced: joined.starts, now: now)
         suite.expect(!alone.announces && joined.announces && !again.announces
-                     && NotchCalendarSupport.headsUp(all, announced: joined.starts).announces,
+                     && NotchCalendarSupport.headsUp(all, announced: joined.starts, now: now).announces,
                      "the island opens when a start joins another countdown, once per start, never for one alone")
+        let zoom = URL(string: "https://us02web.zoom.us/j/81234567890?pwd=abc123")!
+        let teams = "https://teams.microsoft.com/l/meetup-join/19%3ameeting_x%40thread.v2/0?context=%7b%7d"
+        let notes = "<p>Agenda: https://docs.google.com/document/d/1 then <a href=\"https://meet.google.com/abc-defg-hij\">join</a></p>"
+        suite.expect(NotchMeetingLink.find(url: zoom, location: teams, notes: notes)?.platform == .zoom
+                     && NotchMeetingLink.find(url: nil, location: teams, notes: notes)?.platform == .teams
+                     && NotchMeetingLink.find(url: nil, location: "Room 4", notes: notes)?.url.absoluteString
+                     == "https://meet.google.com/abc-defg-hij",
+                     "a call link is found in the event's URL, then its location, then its notes, past other links")
+        suite.expect(NotchMeetingLink.find(url: URL(string: "https://zoom.us/pricing"), location: "https://meet.google.com/",
+                                           notes: "https://docs.google.com/document/d/1") == nil,
+                     "a service's other pages and documents are not calls")
+        let safelink = "https://nam12.safelinks.protection.outlook.com/?url=https%3A%2F%2Fcompany.webex.com%2Fmeet%2Fkrista&data=1"
+        suite.expect(NotchMeetingLink.find(url: nil, location: "", notes: "Join: " + safelink)?.url.absoluteString
+                     == "https://company.webex.com/meet/krista",
+                     "a link wrapped by Outlook's safe links is unwrapped to its call")
+        let zoomLink = NotchMeetingLink(platform: .zoom, url: zoom)
+        let teamsLink = NotchMeetingLink(platform: .teams, url: URL(string: teams)!)
+        suite.expect(zoomLink.nativeURL?.absoluteString == "zoommtg://us02web.zoom.us/join?action=join&confno=81234567890&pwd=abc123"
+                     && teamsLink.nativeURL?.absoluteString.hasPrefix("msteams:/l/meetup-join/19%3ameeting_x%40thread.v2/0?") == true
+                     && NotchMeetingLink(platform: .meet, url: URL(string: "https://meet.google.com/abc-defg-hij")!).nativeURL == nil,
+                     "Zoom and Teams meetings open straight in their apps; other calls keep their link")
+        var call = event("call", 600, 2400)
+        call.meeting = zoomLink
+        let lead = NotchMeetingLink.joinLead
+        suite.expect(!NotchMeetingLink.isJoinable(call, now: call.start.addingTimeInterval(-lead - 1))
+                     && NotchMeetingLink.isJoinable(call, now: call.start.addingTimeInterval(-lead))
+                     && NotchMeetingLink.isJoinable(call, now: call.end.addingTimeInterval(-1))
+                     && !NotchMeetingLink.isJoinable(call, now: call.end)
+                     && !NotchMeetingLink.isJoinable(event("no link", 60, 600), now: now),
+                     "Join appears five minutes before a call starts and stays until it ends")
+        let callDown = [NotchCalendarCountdown(event: call, ongoing: false)]
+        let early = NotchCalendarSupport.headsUp(callDown, announced: [], now: now)
+        let opened = NotchCalendarSupport.headsUp(callDown, announced: early.starts, now: call.start.addingTimeInterval(-lead))
+        let minuteBefore = NotchCalendarSupport.headsUp(callDown, announced: opened.starts, now: call.start.addingTimeInterval(-60))
+        suite.expect(!early.announces && opened.announces && !minuteBefore.announces
+                     && NotchCalendarSupport.joinTransition(callDown, now: now) == call.start.addingTimeInterval(-lead),
+                     "a call alone opens the island once, when it can be joined, and the island reads again then")
         suite.expect(NotchCalendarSupport.stackDotsWidth(1) == NotchCalendarSupport.stripDotWidth
                      && NotchCalendarSupport.stackDotsWidth(3) == NotchCalendarSupport.stackDotsWidth(9)
                      && NotchCalendarSupport.stackDotsWidth(2) > NotchCalendarSupport.stackDotsWidth(1),
