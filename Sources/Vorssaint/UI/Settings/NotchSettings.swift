@@ -24,6 +24,7 @@ struct NotchSettings: View {
     @AppStorage(DefaultsKey.notchCalendarCountdownLead) private var calendarCountdownLead = NotchCalendarSupport.defaultCountdownLeadMinutes
     @AppStorage(DefaultsKey.notchCalendarTimeLeft) private var calendarTimeLeft = false
     @AppStorage(DefaultsKey.notchCalendarWeekNumbers) private var calendarWeekNumbers = false
+    @AppStorage(DefaultsKey.notchCalendarAnnounceInFullscreen) private var calendarAnnounceInFullscreen = false
     @AppStorage(DefaultsKey.notchAgentsEnabled) private var agentsEnabled = false
     @AppStorage(DefaultsKey.notchWatchEnabled) private var watchEnabled = true
     @AppStorage(DefaultsKey.notchLyricsEnabled) private var lyricsEnabled = true
@@ -109,7 +110,7 @@ struct NotchSettings: View {
     private var editor: NotchEditorStrings { FeatureStrings.notchEditor(l10n.language) }
 
     private var configuration: [String] {
-        [String(enabled), String(calendarEnabled), String(calendarCountdown), String(calendarCountdownLead), String(calendarTimeLeft),
+        [String(enabled), String(calendarEnabled), String(calendarCountdown), String(calendarCountdownLead), String(calendarTimeLeft), String(calendarAnnounceInFullscreen),
          String(notificationsEnabled), String(dismissNativeNotifications), String(gesturesEnabled),
          String(lyricsEnabled), String(lyricsOnline), String(queueEnabled), String(liveEqualizer),
          String(showPlayingMusic), String(includeOtherPlayers), idle, hiddenControls, controlOrder, size,
@@ -468,6 +469,8 @@ struct NotchSettings: View {
             }
             switchRow("hourglass", calendar.timeLeft, caption: calendar.timeLeftHint, isOn: $calendarTimeLeft)
             switchRow("number", calendar.weekNumbers, isOn: $calendarWeekNumbers)
+            switchRow("arrow.up.left.and.arrow.down.right", calendar.announceInFullscreen,
+                      caption: calendar.announceInFullscreenHint, isOn: $calendarAnnounceInFullscreen)
             if permissions.calendarAccess == .fullAccess { NotchCalendarSelection() }
         case .timer:
             let activities = FeatureStrings.notchActivities(l10n.language)
