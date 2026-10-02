@@ -39,6 +39,10 @@ struct NotchCalendarStrings {
     let timeLeftHint: String
     /// Heads the per-calendar checkboxes in Settings.
     let calendars: String
+    /// Before the time of a later event beside the closed island's clock: "then 2:15".
+    let then: String
+    /// Heads the countdowns on the Calendar page when two or more start at once.
+    let together: String
 }
 
 extension FeatureStrings {
@@ -74,7 +78,9 @@ extension FeatureStrings {
             removeCountdown: "Remove Countdown",
             timeLeft: "Time left in current event",
             timeLeftHint: "Show a timed event in progress in the closed island during the hour before it ends. Its title may appear in screen captures.",
-            calendars: "Calendars shown")
+            calendars: "Calendars shown",
+            then: "then",
+            together: "Starting at the same time")
         case .ptBR: return NotchCalendarStrings(
             title: "Calendário",
             description: "Veja o mês e seus próximos compromissos no Dynamic Island.",
@@ -105,7 +111,9 @@ extension FeatureStrings {
             removeCountdown: "Remover contagem regressiva",
             timeLeft: "Tempo restante do evento atual",
             timeLeftHint: "Mostra o evento com horário em andamento no notch durante a última hora antes de terminar. O título pode aparecer em capturas de tela.",
-            calendars: "Calendários exibidos")
+            calendars: "Calendários exibidos",
+            then: "depois",
+            together: "Começam ao mesmo tempo")
         case .es: return NotchCalendarStrings(
             title: "Calendario",
             description: "Consulta el mes y tus próximas citas en el Dynamic Island.",
@@ -136,7 +144,9 @@ extension FeatureStrings {
             removeCountdown: "Quitar cuenta atrás",
             timeLeft: "Tiempo restante del evento actual",
             timeLeftHint: "Muestra el evento con hora en curso en el notch durante la última hora antes de que termine. El título puede aparecer en capturas de pantalla.",
-            calendars: "Calendarios mostrados")
+            calendars: "Calendarios mostrados",
+            then: "luego",
+            together: "Empiezan a la vez")
         case .sk: return NotchCalendarStrings(
             title: "Kalendár",
             description: "Prezerajte mesiac a nadchádzajúce stretnutia v Dynamic Island.",
@@ -167,7 +177,9 @@ extension FeatureStrings {
             removeCountdown: "Odstrániť odpočítavanie",
             timeLeft: "Zostávajúci čas aktuálnej udalosti",
             timeLeftHint: "Zobrazí prebiehajúcu udalosť s časom v zatvorenom výreze počas hodiny pred jej koncom. Názov sa môže zobraziť na snímkach obrazovky.",
-            calendars: "Zobrazené kalendáre")
+            calendars: "Zobrazené kalendáre",
+            then: "potom",
+            together: "Začínajú naraz")
         case .de: return NotchCalendarStrings(
             title: "Kalender",
             description: "Den Monat und deine nächsten Termine im Dynamic Island ansehen.",
@@ -198,7 +210,9 @@ extension FeatureStrings {
             removeCountdown: "Countdown entfernen",
             timeLeft: "Restzeit des aktuellen Termins",
             timeLeftHint: "Zeigt einen laufenden Termin mit Uhrzeit in der geschlossenen Insel in der Stunde vor seinem Ende. Der Titel kann in Bildschirmaufnahmen erscheinen.",
-            calendars: "Angezeigte Kalender")
+            calendars: "Angezeigte Kalender",
+            then: "dann",
+            together: "Beginnen gleichzeitig")
         case .fr: return NotchCalendarStrings(
             title: "Calendrier",
             description: "Consultez le mois et vos prochains rendez-vous dans le Dynamic Island.",
@@ -229,7 +243,9 @@ extension FeatureStrings {
             removeCountdown: "Retirer le compte à rebours",
             timeLeft: "Temps restant de l’événement en cours",
             timeLeftHint: "Affiche l’événement en cours avec une heure dans l’encoche pendant l’heure qui précède sa fin. Son titre peut apparaître dans les captures d’écran.",
-            calendars: "Calendriers affichés")
+            calendars: "Calendriers affichés",
+            then: "puis",
+            together: "Commencent en même temps")
         case .it: return NotchCalendarStrings(
             title: "Calendario",
             description: "Consulta il mese e i prossimi appuntamenti nel Dynamic Island.",
@@ -260,7 +276,9 @@ extension FeatureStrings {
             removeCountdown: "Rimuovi conto alla rovescia",
             timeLeft: "Tempo rimanente dell’evento in corso",
             timeLeftHint: "Mostra l’evento in corso con un orario nell’isola chiusa durante l’ultima ora prima della fine. Il titolo può apparire nelle acquisizioni dello schermo.",
-            calendars: "Calendari mostrati")
+            calendars: "Calendari mostrati",
+            then: "poi",
+            together: "Iniziano insieme")
         case .ru: return NotchCalendarStrings(
             title: "Календарь",
             description: "Просматривайте месяц и ближайшие встречи в вырезе экрана.",
@@ -291,7 +309,9 @@ extension FeatureStrings {
             removeCountdown: "Убрать отсчёт",
             timeLeft: "Оставшееся время текущего события",
             timeLeftHint: "Показывает текущее событие со временем за час до его окончания. Название может попасть на снимки экрана.",
-            calendars: "Показываемые календари")
+            calendars: "Показываемые календари",
+            then: "затем",
+            together: "Начинаются одновременно")
         case .tr: return NotchCalendarStrings(
             title: "Takvim",
             description: "Ayı ve yaklaşan randevularınızı çentikte görüntüleyin.",
@@ -322,7 +342,9 @@ extension FeatureStrings {
             removeCountdown: "Geri sayımı kaldır",
             timeLeft: "Geçerli etkinlikte kalan süre",
             timeLeftHint: "Devam eden saatli etkinliği bitmeden önceki bir saat boyunca çentikte gösterir. Başlığı ekran görüntülerinde görünebilir.",
-            calendars: "Gösterilen takvimler")
+            calendars: "Gösterilen takvimler",
+            then: "sonra",
+            together: "Aynı anda başlıyor")
         case .ja: return NotchCalendarStrings(
             title: "カレンダー",
             description: "Dynamic Islandで月のカレンダーと今後の予定を確認できます。",
@@ -353,7 +375,9 @@ extension FeatureStrings {
             removeCountdown: "カウントダウンを削除",
             timeLeft: "進行中の予定の残り時間",
             timeLeftHint: "終了1時間前から、時刻がある進行中の予定を閉じたノッチに表示します。タイトルが画面収録やスクリーンショットに映る場合があります。",
-            calendars: "表示するカレンダー")
+            calendars: "表示するカレンダー",
+            then: "次",
+            together: "同時に開始")
         case .ko: return NotchCalendarStrings(
             title: "캘린더",
             description: "Dynamic Island에서 월별 달력과 다가오는 일정을 확인하세요.",
@@ -384,7 +408,9 @@ extension FeatureStrings {
             removeCountdown: "카운트다운 제거",
             timeLeft: "진행 중인 일정의 남은 시간",
             timeLeftHint: "종료 1시간 전부터 시간이 지정된 진행 중인 일정을 닫힌 노치에 표시합니다. 제목이 화면 캡처에 나타날 수 있습니다.",
-            calendars: "표시할 캘린더")
+            calendars: "표시할 캘린더",
+            then: "다음",
+            together: "동시에 시작")
         case .zhHans: return NotchCalendarStrings(
             title: "日历",
             description: "在Dynamic Island中浏览月历和即将开始的日程。",
@@ -415,7 +441,9 @@ extension FeatureStrings {
             removeCountdown: "移除倒计时",
             timeLeft: "当前日程剩余时间",
             timeLeftHint: "在结束前一小时，于收起的刘海区域显示正在进行的定时日程。标题可能出现在屏幕截图中。",
-            calendars: "显示的日历")
+            calendars: "显示的日历",
+            then: "接着",
+            together: "同时开始")
         case .zhTW: return NotchCalendarStrings(
             title: "行事曆",
             description: "在Dynamic Island中瀏覽月曆與即將到來的行程。",
@@ -446,7 +474,9 @@ extension FeatureStrings {
             removeCountdown: "移除倒數",
             timeLeft: "目前行程剩餘時間",
             timeLeftHint: "在結束前一小時，於收合的動態島顯示進行中且有時間的行程。標題可能出現在螢幕截圖中。",
-            calendars: "顯示的行事曆")
+            calendars: "顯示的行事曆",
+            then: "接著",
+            together: "同時開始")
         case .zhHK: return NotchCalendarStrings(
             title: "日曆",
             description: "在Dynamic Island中瀏覽月曆及即將到來的行程。",
@@ -477,7 +507,9 @@ extension FeatureStrings {
             removeCountdown: "移除倒數",
             timeLeft: "目前行程剩餘時間",
             timeLeftHint: "在結束前一小時，於收合的動態島顯示進行中且有時間的行程。標題可能出現在螢幕截圖中。",
-            calendars: "顯示的日曆")
+            calendars: "顯示的日曆",
+            then: "接著",
+            together: "同時開始")
         case .uk: return NotchCalendarStrings(
             title: "Календар",
             description: "Переглядайте місяць та майбутні події у Dynamic Island.",
@@ -508,7 +540,9 @@ extension FeatureStrings {
             removeCountdown: "Прибрати відлік",
             timeLeft: "Залишок часу поточної події",
             timeLeftHint: "Показує поточну подію з визначеним часом за годину до її завершення. Назва може потрапити на знімки екрана.",
-            calendars: "Календарі для показу")
+            calendars: "Календарі для показу",
+            then: "потім",
+            together: "Починаються одночасно")
         }
     }
 }
