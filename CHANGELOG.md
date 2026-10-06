@@ -6,6 +6,12 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Dynamic Island
+- Up next says when the player does not share its upcoming songs, instead of showing an empty queue.
+
+### Contributors
+Feedback: Martimm500.
+
 ## [3.4.1-beta.2] - 2026-10-06
 
 ### Summary
