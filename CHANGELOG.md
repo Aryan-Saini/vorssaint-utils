@@ -8,9 +8,16 @@ All notable changes to this project are documented here. The format follows
 
 ### Dynamic Island
 - Up next says when the player does not share its upcoming songs, instead of showing an empty queue.
+- The volume indicator stays hidden while headphones like AirPods Pro adjust their own level. Volume keys still show it.
+
+### Changed
+- Clear unpinned asks first everywhere and says how many items it removes. Anything copied while it asks is kept.
+
+### Fixed
+- In the Clipboard history window, a new copy no longer moves the highlight, so Return pastes the entry you picked.
 
 ### Contributors
-Feedback: Martimm500.
+Thanks to @mugurc and @PathGao. Feedback: Martimm500.
 
 ## [3.4.1-beta.2] - 2026-10-06
 
