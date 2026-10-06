@@ -355,9 +355,10 @@ enum CommandBarFeatureTests {
         } ?? ""
         suite.expect(clipboardActionsCode.contains("id: \"action.clipboardClearRecent\"")
                 && clipboardActionsCode.contains("title: clipboard.clearRecent")
-                && clipboardActionsCode.contains("confirmationPrompt: clipboard.clearRecent")
-                && clipboardActionsCode.contains("ClipboardHistoryService.shared.clearRecent()"),
-               "the Command Bar clears only unpinned clipboard items after confirmation")
+                && clipboardActionsCode.contains(
+                    "confirmationPrompt: String(format: clipboard.clearRecentConfirmFormat, recentIDs.count)")
+                && clipboardActionsCode.contains("ClipboardHistoryService.shared.clearRecent(recentIDs)"),
+               "the Command Bar clears only the unpinned clipboard items it counted, after confirmation")
         for accepts in [true, false] {
             CopyAnswerHost.Pasteboard.general.accepts = accepts
             CopyAnswerHost.HUD.shown = []
