@@ -3,6 +3,7 @@
 
 import AppKit
 import Carbon.HIToolbox
+import OSLog
 import SwiftUI
 import Vision
 
@@ -1213,6 +1214,8 @@ final class ScreenshotEditorModel: ObservableObject, BackdropEditing {
 /// Hosts one editor window per capture and owns everything with a side
 /// effect: clipboard, files, pins, text recognition and the close-confirm.
 final class ScreenshotEditorController: NSObject, NSWindowDelegate {
+    private static let log = Logger(subsystem: Bundle.main.bundleIdentifier ?? "vorssaint",
+                                    category: "screenshot-editor")
     let model: ScreenshotEditorModel
     private var window: NSWindow?
     private var keyMonitor: Any?
@@ -1292,8 +1295,19 @@ final class ScreenshotEditorController: NSObject, NSWindowDelegate {
 
     private func installKeyMonitor() {
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
-            guard let self, let window = self.window,
-                  ScreenshotSupport.editorOwnsKeyEvent(
+            guard let self, let window = self.window else { return event }
+            // Temporary: traces why Cmd-C can fall through without copying.
+            if event.modifierFlags.contains(.command), Int(event.keyCode) == kVK_ANSI_C {
+                let responder = String(describing: window.firstResponder)
+                Self.log.notice("""
+                    cmd-c event=\(event.windowNumber) editor=\(window.windowNumber) \
+                    key=\(window.isKeyWindow) capturing=\(ShortcutCapture.isCapturing) \
+                    responder=\(responder, privacy: .public) \
+                    editingText=\(self.model.editingTextID != nil) \
+                    words=\(self.model.selectedWordIndexes.count)
+                    """)
+            }
+            guard ScreenshotSupport.editorOwnsKeyEvent(
                     eventWindowNumber: event.windowNumber,
                     editorWindowNumber: window.windowNumber,
                     editorIsKey: window.isKeyWindow)
@@ -1357,7 +1371,7 @@ final class ScreenshotEditorController: NSObject, NSWindowDelegate {
             case kVK_ANSI_C:
                 // Text selected on the canvas copies as text and keeps the
                 // editor open; otherwise the capture leaves as an image.
-                if !model.selectedWordIndexes.isEmpty {
+                if !model.selectedText.isEmpty {
                     copySelectedText()
                 } else if !ScreenshotSupport.editorIgnoresPostedCopy(
                     sourceProcessID: event.cgEvent?.getIntegerValueField(.eventSourceUnixProcessID) ?? 0,
@@ -1477,8 +1491,13 @@ final class ScreenshotEditorController: NSObject, NSWindowDelegate {
     /// Every final output closes the editor: the capture leaves the app
     /// and the window's job is done, so nothing lingers to tidy up.
     func copyToClipboard() {
-        guard let export = model.exportImage() else { return }
+        guard let export = model.exportImage() else {
+            Self.log.error("copy: export failed")
+            NSSound.beep()
+            return
+        }
         guard Self.copyImage(export, fileNamePrefix: strings.fileNamePrefix) else {
+            Self.log.error("copy: pasteboard write failed")
             NSSound.beep()
             return
         }
