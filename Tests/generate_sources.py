@@ -295,6 +295,14 @@ def main():
           + declaration("Sources/Vorssaint/Services/SystemMonitor/SystemMonitor.swift",
                         "    private func readCPUUsage(").replace("private func", "func", 1)
           + "}\n}\n")
+    monitor = "Sources/Vorssaint/Services/SystemMonitor/SystemMonitor.swift"
+    write("SystemMonitorPlan.swift", "import Foundation\n"
+          + "extension SystemMonitorPlanTests {\n"
+          + declaration(monitor, "struct SystemMonitorPanelNeeds")
+          + "final class Monitor: Fixture {\n"
+          + declaration(monitor, "    private struct SamplingPlan").replace("private struct", "struct", 1)
+          + declaration(monitor, "    private func currentPlan(").replace("private func", "func", 1)
+          + "}\n}\n")
     uninstall = "Sources/Vorssaint/Services/Uninstall/AppUninstaller.swift"
     bar = "Sources/Vorssaint/Services/CommandBar/CommandBarService.swift"
     for host, path in [("Settings", "Sources/Vorssaint/UI/Settings/URLCleanerSettings.swift"),
@@ -731,6 +739,8 @@ def main():
                                                 "AppFeature.monitorDisk.isAvailable(in: ReviewDefaults.current)")
     music_visibility = music_visibility.replace("AppFeature.fanControl.isAvailable",
                                                 "AppFeature.fanControl.isAvailable(in: ReviewDefaults.current)")
+    music_visibility = music_visibility.replace("AppFeature.connectedDevices.isAvailable",
+                                                "AppFeature.connectedDevices.isAvailable(in: ReviewDefaults.current)")
     write("NotchMusicVisibility.swift", "import Foundation\nextension NotchMusicVisibilityTests {\n"
           + "final class Service: State {\n" + music_visibility + "}\n}\n")
     write("NotchScreenEdgeClicks.swift", "import AppKit\nextension NotchScreenEdgeClickTests {\nfinal class Service: State {\n"
