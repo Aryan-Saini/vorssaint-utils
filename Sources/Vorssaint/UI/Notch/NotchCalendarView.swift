@@ -165,7 +165,7 @@ struct NotchCalendarView: View {
                 }
             }
             if rowOpensCalendar {
-                NotchIconButton(symbol: "arrow.up.forward.app", title: text.openCalendar) { openCalendar() }
+                NotchIconButton(symbol: "arrow.up.forward.app", title: text.openCalendar) { Self.openCalendar() }
             }
         }
     }
@@ -254,7 +254,9 @@ struct NotchCalendarView: View {
         VStack(alignment: .leading, spacing: 14) {
             if let stack = calendar.stack,
                stack.countdowns.count > 1 || NotchMeetingLink.isJoinable(stack.first.event, now: now) {
-                NotchCalendarUpNext(stack: stack, text: text) { openCalendar(showing: $0) }
+                NotchCalendarUpNext(stack: stack, text: text, viewEvent: { Self.openCalendar(showing: $0) }) {
+                    Self.openCalendar(showing: $0)
+                }
             }
             eventList(now: now)
         }
@@ -278,7 +280,7 @@ struct NotchCalendarView: View {
                                                   isNext: event.id == next?.id, text: text,
                                                   countdown: countdownChoice(event, now: now),
                                                   choose: { calendar.setCountdown($0, for: event) }) {
-                                openCalendar(showing: event)
+                                Self.openCalendar(showing: event)
                             }
                             .id(event.id)
                         }
@@ -312,7 +314,7 @@ struct NotchCalendarView: View {
                     .fixedSize(horizontal: false, vertical: true)
                 // With no card to open it from and no room for it in the row.
                 if !rowOpensCalendar {
-                    NotchPillButton(title: text.openCalendar) { openCalendar() }
+                    NotchPillButton(title: text.openCalendar) { Self.openCalendar() }
                 }
             }
         }
@@ -349,7 +351,7 @@ struct NotchCalendarView: View {
 
     /// Calendar itself gets the link: another app claiming the `ical` scheme
     /// would not know EventKit's identifiers.
-    private func openCalendar(showing event: NotchCalendarEvent? = nil) {
+    static func openCalendar(showing event: NotchCalendarEvent? = nil) {
         guard let application = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.apple.iCal") else { return }
         let configuration = NSWorkspace.OpenConfiguration()
         if let url = event.flatMap({ NotchCalendarSupport.eventURL($0) }) {
@@ -368,6 +370,9 @@ struct NotchCalendarUpNext: View {
     let stack: NotchCalendarStack
     let text: NotchCalendarStrings
     var limit: Int? = nil
+    /// Shows one event in Calendar, for Join's menu.
+    let viewEvent: (NotchCalendarEvent) -> Void
+    /// A row's own click: the event in Calendar, or the island's page.
     let open: (NotchCalendarEvent) -> Void
 
     private typealias Layout = NotchCalendarUpNextLayout
@@ -433,7 +438,7 @@ struct NotchCalendarUpNext: View {
             .accessibilityValue(NotchCalendarSupport.countdownAccessibilityText(until: countdown.target, now: now,
                                                                                 locale: .current))
             if let meeting = event.meeting, NotchMeetingLink.isJoinable(event, now: now) {
-                NotchMeetingJoinButton(meeting: meeting, text: text) { open(event) }
+                NotchMeetingJoinButton(meeting: meeting, text: text) { viewEvent(event) }
             }
         }
     }
