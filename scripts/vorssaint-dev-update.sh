@@ -5,7 +5,8 @@
 # Same flow as Peekaboo's scripts/peekaboo-dev-update.sh: auto-commit tracked local
 # work -> check Aryan's upstream PRs (vorssaint-dev-prs.sh) -> fast-forward the `main`
 # mirror -> rebase `my-changes` onto it, dropping PR commits upstream merged (headless
-# Claude resolves conflicts; aborts safely if it can't) -> verify the fork's patches
+# Claude resolves conflicts, and finishes a rebase a killed run left behind; aborts safely
+# if it can't) -> verify the fork's patches
 # survived -> `./build.sh --dev --install` -> relaunch if it was running.
 # Nothing changes until you run this, so upstream never breaks the installed app by
 # surprise. `--force` rebuilds even when upstream has nothing new.
@@ -71,7 +72,19 @@ upstream. Never git rebase --abort, never push. Finish with git status showing n
 
 log "Repo: $REPO (branch=$WORK_BRANCH)"
 
-rebase_in_progress && fail "a rebase is already in progress; finish or abort it by hand"
+# GIT_EDITOR=true so neither the rebase below nor Claude's --continue waits on an editor.
+export GIT_EDITOR=true
+
+# A rebase left behind by an earlier run that died mid-resolution (Terminal closed,
+# fleet-update timeout) would otherwise block every later run. Hand it to Claude to
+# finish; if it can't, abort, which restores the branch to before that run.
+if rebase_in_progress; then
+    [[ "$(cat .git/rebase-merge/head-name .git/rebase-apply/head-name 2>/dev/null)" == "refs/heads/$WORK_BRANCH" ]] \
+        || fail "a rebase of another branch is in progress; finish or abort it by hand"
+    notify "Vorssaint update: resuming" "A previous rebase was left unfinished, launching Claude…"
+    PR_STATUS="$(scripts/vorssaint-dev-prs.sh)"
+    resolve_rebase_with_claude || { git rebase --abort >/dev/null 2>&1; fail "leftover rebase not resolved, aborted; branch restored"; }
+fi
 [[ "$(git branch --show-current)" == "$WORK_BRANCH" ]] \
     || fail "not on $WORK_BRANCH (on '$(git branch --show-current)'); check out $WORK_BRANCH first"
 
@@ -107,8 +120,6 @@ if [[ "$behind" != "0" ]]; then
 fi
 
 # Turn each merged PR's pick into a drop. The todo abbreviates to at least 7 characters.
-# GIT_EDITOR=true so neither this nor Claude's --continue waits on an editor.
-export GIT_EDITOR=true
 drop_merged="$(mktemp)"; trap 'rm -f "$drop_merged"' EXIT
 {
     echo '#!/bin/sh'
