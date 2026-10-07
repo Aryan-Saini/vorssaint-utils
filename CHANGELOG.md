@@ -8,7 +8,7 @@ All notable changes to this project are documented here. The format follows
 
 ### Dynamic Island
 - Controls can show a keyboard light slider next to Volume and Brightness, and its icon turns the light off and on. Settings → Dynamic Island → Content → Controls.
-- The music page can switch shuffle for players that offer it to scripts, such as Spotify and Music, beside the playback controls. It follows the player's own setting, and stays off while the songs playing cannot be shuffled, as for a Spotify radio. The first press asks for Automation permission.
+- The music page can switch shuffle beside the playback controls for players that offer it. The first press asks for Automation permission.
 - Up next says when the player does not share its upcoming songs, instead of showing an empty queue.
 - The volume indicator stays hidden while headphones like AirPods Pro adjust their own level. Volume keys still show it.
 - With Hide timer countdown on, the closed island shows the timer when time is up and keeps it until you dismiss it.
@@ -19,7 +19,7 @@ All notable changes to this project are documented here. The format follows
 - The calendar month can number its weeks. Settings → Dynamic Island → Content → Calendar → Week numbers.
 - AI Agents stops counting a Claude Code turn once the Mac has been offline for about 20 seconds, unless a shell command is still running.
 - Opening lyrics or Up next no longer changes the size of the player above them.
-- The companion can hide in the island when nothing is going on and come out only to visit and react, so the island keeps its usual size. Settings → Dynamic Island → Companion → Hide when idle.
+- The companion can hide in the island when nothing is going on and come out only to visit and react. Settings → Dynamic Island → Companion → Hide when idle.
 
 ### Added
 - The screenshot editor's Pixelate tool is now Blur, and it can pixelate, blur or erase a whole area or only the text inside it.
@@ -27,6 +27,8 @@ All notable changes to this project are documented here. The format follows
 - Each edge and corner that snaps a dragged window can use any placement, like a third or two thirds, and an edge can be split into up to four areas. Settings → Window layout → Window dragging.
 - Network speeds can show in bits per second. Settings → System monitor → Network speed unit.
 - Connected Devices opens from the System section of the menu and from the island's System page, without its menu bar widget.
+- Tapping CPU in the System section of the menu shows the load of each core, grouped by core type. Settings → System monitor → CPU → Per core.
+- In the Clipboard history window, the preview lays out copied JSON one value per line, and a picture's preview can copy the text in it.
 
 ### Changed
 - Clear unpinned asks first everywhere and says how many items it removes. Anything copied while it asks is kept.
@@ -46,9 +48,10 @@ All notable changes to this project are documented here. The format follows
 - The screenshot editor keeps all its controls inside the window for small captures.
 - Vorssaint no longer stops responding at launch while macOS is slow to report Launch at Login.
 - Removing an app with the Uninstaller frees its Command Bar shortcut for another app.
+- The mute key no longer lowers the volume when the output loses its mute control right after the press.
 
 ### Contributors
-Thanks to @AB-boi, @Acronyxxx, @adam8833, @dc0dr, @djc041006-bot, @emilianorobles, @georgebnov, @gxlactuss, @JeanBaeez, @luantedesco, @massisenergy, @mgailius, @mugurc, @mynameisluke, @Narangor, @nik2k-7, @niukanen1, @nkudrin713, @odeioabacate, @oskarsss, @PathGao, @Polovinkin, @priyanshuvishnoi, @samueltpoj, @sarat03, @suhrudsh, @ThelloD, @velit, @wuast94, @ywu73 and @zecarreira. Feedback: Brain and Martimm500.
+Thanks to @AB-boi, @Acronyxxx, @adam8833, @dc0dr, @djc041006-bot, @emilianorobles, @georgebnov, @gorillasuti, @gxlactuss, @JeanBaeez, @luantedesco, @massisenergy, @mgailius, @mugurc, @mynameisluke, @Narangor, @nik2k-7, @niukanen1, @nkudrin713, @odeioabacate, @oskarsss, @PathGao, @Polovinkin, @priyanshuvishnoi, @samanyudas, @samueltpoj, @sarat03, @suhrudsh, @ThelloD, @velit, @wuast94, @ywu73 and @zecarreira. Feedback: Brain and Martimm500.
 
 ## [3.4.1-beta.2] - 2026-10-06
 
