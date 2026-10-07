@@ -928,9 +928,10 @@ enum NotchCapsuleLayout {
         }
     }
 
-    /// The events' dots and the countdown at its widest, as a pair shows them.
+    /// The event's dot, or the "+1" for several, and the countdown at its
+    /// widest, as a pair shows them.
     static func calendarClockWidth(events: Int = 1) -> CGFloat {
-        NotchCalendarSupport.stackDotsWidth(events, dot: calendarDotSide) + markSpacing + width("00:00", font: readingFont)
+        NotchCalendarSupport.clockMarkWidth(events, dot: calendarDotSide) + markSpacing + width("00:00", font: readingFont)
     }
 
     /// The "+1" after the title when more events count down than the one shown.
@@ -998,11 +999,11 @@ enum NotchCapsuleLayout {
     /// An event's color and title, then its countdown at its widest and the
     /// time it starts or ends.
     static func calendarSurface(title: String, time: String, geometry: NotchGeometry) -> CGSize {
-        calendarSurface(dots: calendarDotSide, title: width(title, font: titleFont), time: width(time, font: smallFont),
-                        geometry: geometry)
+        calendarSurface(mark: calendarDotSide + spacing, title: width(title, font: titleFont),
+                        time: width(time, font: smallFont), geometry: geometry)
     }
 
-    /// Several events counting down: their dots, the widest title of those
+    /// Several events counting down: no dot, the widest title of those
     /// taking turns and the "+1", then the clock and the widest time beside it.
     static func calendarSurface(_ stack: NotchCalendarStack, geometry: NotchGeometry, language: AppLanguage) -> CGSize {
         let text = FeatureStrings.notchCalendar(language)
@@ -1013,12 +1014,12 @@ enum NotchCapsuleLayout {
             width(NotchCalendarSupport.stackTimeText(stack, shown: $0, then: text.then, locale: locale), font: smallFont)
         }.max() ?? 0
         let badge = stack.others > 0 ? spacing + calendarBadgeWidth(stack.others) : 0
-        return calendarSurface(dots: NotchCalendarSupport.stackDotsWidth(stack.countdowns.count, dot: calendarDotSide),
-                               title: title + badge, time: time, geometry: geometry)
+        let mark = NotchCalendarSupport.titleMarkWidth(stack.countdowns.count, dot: calendarDotSide, spacing: spacing)
+        return calendarSurface(mark: mark, title: title + badge, time: time, geometry: geometry)
     }
 
-    private static func calendarSurface(dots: CGFloat, title: CGFloat, time: CGFloat, geometry: NotchGeometry) -> CGSize {
-        let content = dots + spacing + title + groupSpacing + width("00:00", font: readingFont) + markSpacing + time
+    private static func calendarSurface(mark: CGFloat, title: CGFloat, time: CGFloat, geometry: NotchGeometry) -> CGSize {
+        let content = mark + title + groupSpacing + width("00:00", font: readingFont) + markSpacing + time
         return surface(content: content, maximum: Maximum.calendar, geometry: geometry)
     }
 
