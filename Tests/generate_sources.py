@@ -303,6 +303,13 @@ def main():
           + declaration(monitor, "    private struct SamplingPlan").replace("private struct", "struct", 1)
           + declaration(monitor, "    private func currentPlan(").replace("private func", "func", 1)
           + "}\n}\n")
+    write("SystemSectionBreakdown.swift", "import Foundation\n"
+          + "extension SystemSectionBreakdownTests {\nfinal class Section: Fixture {\n"
+          + declaration("Sources/Vorssaint/UI/MenuPanel/SystemSection.swift",
+                        "    private func refreshBreakdown(").replace("private func", "func", 1)
+          + declaration("Sources/Vorssaint/UI/MenuPanel/SystemSection.swift",
+                        "    private func toggleCPUApps(").replace("private func", "func", 1)
+          + "}\n}\n")
     uninstall = "Sources/Vorssaint/Services/Uninstall/AppUninstaller.swift"
     bar = "Sources/Vorssaint/Services/CommandBar/CommandBarService.swift"
     for host, path in [("Settings", "Sources/Vorssaint/UI/Settings/URLCleanerSettings.swift"),
