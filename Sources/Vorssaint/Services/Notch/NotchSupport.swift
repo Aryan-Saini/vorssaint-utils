@@ -825,15 +825,15 @@ enum NotchCapsuleLayout {
 
     /// A timer's mark, or the mark of what shares the capsule with a timer
     /// or an event: a download's arrow and percentage, the working agents,
-    /// the cover or the event's dot and countdown.
+    /// the cover or the events' dots and countdown.
     static func timerMarkWidth(companion: NotchCompactActivity?, workingAgents: Int, downloadPercent: Bool,
-                               geometry: NotchGeometry, language: AppLanguage) -> CGFloat {
+                               geometry: NotchGeometry, language: AppLanguage, events: Int = 1) -> CGFloat {
         switch companion {
         case .downloads:
             return symbolWidth + (downloadPercent ? markSpacing + downloadPercentWidth(language) : 0)
         case .agents: return agentMarksWidth(working: workingAgents)
         case .music: return artworkSide(geometry)
-        case .calendar: return calendarClockWidth()
+        case .calendar: return calendarClockWidth(events: events)
         default: return symbolWidth
         }
     }
@@ -855,11 +855,13 @@ enum NotchCapsuleLayout {
     static func markGap(_ companion: NotchCompactActivity?) -> CGFloat { companion == .calendar ? groupSpacing : spacing }
 
     /// A timer's reading beside its mark, measured by its shape, so the
-    /// capsule only moves when a character comes or goes.
+    /// capsule only moves when a character comes or goes. `events` is how
+    /// many dots an event beside the timer draws.
     static func timerSurface(reading: String, companion: NotchCompactActivity?, workingAgents: Int,
-                             downloadPercent: Bool, geometry: NotchGeometry, language: AppLanguage) -> CGSize {
+                             downloadPercent: Bool, geometry: NotchGeometry, language: AppLanguage,
+                             events: Int = 1) -> CGSize {
         let mark = timerMarkWidth(companion: companion, workingAgents: workingAgents, downloadPercent: downloadPercent,
-                                  geometry: geometry, language: language)
+                                  geometry: geometry, language: language, events: events)
         let content = mark + markGap(companion) + width(NotchAgentSupport.readingShape(reading), font: readingFont)
         return surface(content: content, leading: companion == .music ? artworkInset(geometry) : endPadding,
                        maximum: Maximum.activity, geometry: geometry)
