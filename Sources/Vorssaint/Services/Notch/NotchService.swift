@@ -1337,6 +1337,10 @@ final class NotchService: ObservableObject {
         geometry.compactSideRoom = nil
         hoverWork?.cancel(); hoverWork = nil
         noticeWork?.cancel(); noticeWork = nil
+        // The calendar reader stops after the subscriptions go, so the card's
+        // empty-countdown clear never runs; a replacement window starts bare.
+        calendarHeadsUpWork?.cancel(); calendarHeadsUpWork = nil
+        calendarHeadsUp = false
         endDeparture()
         finishMusicDeparture()
         presentedMusic = nil
@@ -1649,7 +1653,7 @@ final class NotchService: ObservableObject {
                 // decides whether it is still needed.
                 guard self.running, !self.suspended, self.inside, !self.hoverState.suppressed,
                       !self.expanded, !self.peeking, !self.pinned, !self.heldDrag, !self.keepsWorkingSurface,
-                      !self.showsCompactActivityPicker,
+                      !self.showsCompactActivityPicker, !self.calendarHeadsUp,
                       self.captureControls == nil, (self.notice == nil || self.hiddenUntilHover), !self.dragPlaceholder,
                       self.hoverOpeningEnabled,
                       self.windowHost?.blocksHoverReveal() == false,
@@ -2393,7 +2397,11 @@ final class NotchService: ObservableObject {
         let overFullscreen = hiddenInFullscreen && acceptsUserInteraction && NotchCalendarSupport.announcesInFullscreen()
         guard showsSystemFeedback || overFullscreen, !expanded, !peeking, !dragPlaceholder, captureControls == nil,
               modules.contains(.calendar), NotchCalendarService.shared.stack != nil else { return }
+        // A hover already waiting to open or peek would replace the card.
+        hoverWork?.cancel(); hoverWork = nil
         mutatePresentation(transitionContent: calendarHeadsUp ? .none : .reveal) { calendarHeadsUp = true }
+        // Announced only once the island is on screen to show it.
+        guard panel?.isVisible == true else { endCalendarHeadsUp(); return }
         NotchCalendarService.shared.headsUpShown()
         scheduleCalendarHeadsUpDismissal(after: Self.calendarHeadsUpDuration)
     }
@@ -2749,7 +2757,7 @@ final class NotchService: ObservableObject {
             removeScreenEdgeClickMonitors()
             return
         }
-        let open = expanded || peeking || notice != nil || dragPlaceholder || captureControls != nil
+        let open = expanded || peeking || notice != nil || dragPlaceholder || captureControls != nil || calendarHeadsUp
         guard open || (!hiddenAtRestInFullscreen && (geometry.isNotched || geometry.compactSideRoom != nil)) else {
             finishMusicDeparture()
             presentedMusic = nil
@@ -2804,7 +2812,8 @@ final class NotchService: ObservableObject {
         let activationRect: CGRect
         if captureControls != nil {
             activationRect = captureControlsCollapsed ? CGRect(origin: .zero, size: size) : .zero
-        } else if notice != nil || dragPlaceholder {
+        } else if notice != nil || dragPlaceholder || calendarHeadsUp {
+            // The heads-up card's rows take their own clicks.
             activationRect = .zero
         } else if showsCompactActivityPicker {
             let strip = compactActivityGeometry.compactActivitySize
