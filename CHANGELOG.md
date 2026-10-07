@@ -12,6 +12,7 @@ All notable changes to this project are documented here. The format follows
 - The volume indicator stays hidden while headphones like AirPods Pro adjust their own level. Volume keys still show it.
 - With Hide timer countdown on, the closed island shows the timer when time is up and keeps it until you dismiss it.
 - The music bars and AI agent animations use much less GPU and battery, most of all on 120 Hz displays.
+- Switching between Timer, Pomodoro and Stopwatch animates as changing pages does, instead of the island jumping to its new size.
 
 ### Changed
 - Clear unpinned asks first everywhere and says how many items it removes. Anything copied while it asks is kept.
