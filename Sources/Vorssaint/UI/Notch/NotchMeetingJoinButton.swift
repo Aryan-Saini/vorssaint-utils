@@ -60,11 +60,10 @@ struct NotchMeetingJoinButton: View {
                 .accessibilityHidden(true)
             Menu {
                 Button(text.openCalendar, action: viewEvent)
-                Button(text.copyLink) {
-                    NSPasteboard.general.clearContents()
-                    NSPasteboard.general.setString(meeting.url.absoluteString, forType: .string)
+                Button(text.copyLink, action: copyLink)
+                if let web = meeting.webURL {
+                    Button(text.openInBrowser) { open(web) }
                 }
-                Button(text.openInBrowser) { open(meeting.url) }
             } label: {
                 Image(systemName: "chevron.down").font(.system(size: 8, weight: .bold))
             }
@@ -88,6 +87,18 @@ struct NotchMeetingJoinButton: View {
         } else {
             open(meeting.url)
         }
+    }
+
+    /// On the shared pasteboard lane, as clipboard history reads it there,
+    /// so the copy never races its cache or waits on the pasteboard server.
+    private func copyLink() {
+        let link = (meeting.webURL ?? meeting.url).absoluteString
+        GeneralPasteboardAccess.shared.async({
+            NSPasteboard.general.clearContents()
+            return NSPasteboard.general.setString(link, forType: .string)
+        }, then: { copied in
+            if !copied { NSSound.beep() }
+        })
     }
 
     private func open(_ url: URL) {
