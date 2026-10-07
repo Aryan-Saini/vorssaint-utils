@@ -90,7 +90,7 @@ enum NotchCalendarUpNextLayout {
 
     static func height(_ stack: NotchCalendarStack, limit: Int?) -> CGFloat {
         let shown = min(stack.countdowns.count, limit ?? .max)
-        let labels = 1 + (stack.together.count > 1 ? 1 : 0) + (shown < stack.countdowns.count ? 1 : 0)
+        let labels = 1 + (stack.startsTogether ? 1 : 0) + (shown < stack.countdowns.count ? 1 : 0)
         return CGFloat(labels) * (labelHeight + spacing) + CGFloat(shown) * rowHeight
     }
 }
