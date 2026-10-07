@@ -1295,19 +1295,8 @@ final class ScreenshotEditorController: NSObject, NSWindowDelegate {
 
     private func installKeyMonitor() {
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
-            guard let self, let window = self.window else { return event }
-            // Temporary: traces why Cmd-C can fall through without copying.
-            if event.modifierFlags.contains(.command), Int(event.keyCode) == kVK_ANSI_C {
-                let responder = String(describing: window.firstResponder)
-                Self.log.notice("""
-                    cmd-c event=\(event.windowNumber) editor=\(window.windowNumber) \
-                    key=\(window.isKeyWindow) capturing=\(ShortcutCapture.isCapturing) \
-                    responder=\(responder, privacy: .public) \
-                    editingText=\(self.model.editingTextID != nil) \
-                    words=\(self.model.selectedWordIndexes.count)
-                    """)
-            }
-            guard ScreenshotSupport.editorOwnsKeyEvent(
+            guard let self, let window = self.window,
+                  ScreenshotSupport.editorOwnsKeyEvent(
                     eventWindowNumber: event.windowNumber,
                     editorWindowNumber: window.windowNumber,
                     editorIsKey: window.isKeyWindow)
