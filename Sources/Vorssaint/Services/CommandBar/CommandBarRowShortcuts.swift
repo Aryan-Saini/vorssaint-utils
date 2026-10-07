@@ -48,6 +48,21 @@ enum CommandBarRowShortcuts {
         return hasRoom(for: key, in: shortcuts) ? nil : .full
     }
 
+    /// The row an app is listed under in the bar: its bundle ID when it has
+    /// one, otherwise where it lives.
+    static func appKey(bundleID: String?, path: String) -> String {
+        bundleID.map { "app.bundle.\($0)" } ?? "app.\(path)"
+    }
+
+    /// The row whose combination goes with an app the uninstaller removed.
+    /// Another copy with the same bundle ID still answers to that row, so it
+    /// keeps the keys.
+    static func keyFreed(byRemovingAppAt path: String, bundleID: String?,
+                         remainingBundleIDs: Set<String>) -> String? {
+        if let bundleID, remainingBundleIDs.contains(bundleID) { return nil }
+        return appKey(bundleID: bundleID, path: path)
+    }
+
     /// The name a row's hotkey is claimed under, and so the name its take-over
     /// choice is kept under. Row combinations live inside one dictionary, so a
     /// claim is named by the row it belongs to.

@@ -1500,6 +1500,30 @@ enum CommandBarFeatureTests {
         suite.expect(CommandBarRowShortcuts.decode(CommandBarRowShortcuts.encode(bound)) == bound,
                "the bindings survive a round trip through storage")
 
+        // An app the uninstaller removed frees its keys for another app.
+        suite.expect(CommandBarRowShortcuts.keyFreed(
+                    byRemovingAppAt: "/Applications/Thunderbird.app", bundleID: "org.mozilla.thunderbird",
+                    remainingBundleIDs: ["com.apple.mail"]) == "app.bundle.org.mozilla.thunderbird",
+               "a removed app's shortcut is freed under the row the bar listed it as")
+        suite.expect(CommandBarRowShortcuts.keyFreed(
+                    byRemovingAppAt: "/Applications/Tool.app", bundleID: nil,
+                    remainingBundleIDs: []) == "app./Applications/Tool.app",
+               "an app with no bundle ID frees the row keyed by its path")
+        suite.expect(CommandBarRowShortcuts.keyFreed(
+                    byRemovingAppAt: "/Users/me/Applications/Thunderbird.app",
+                    bundleID: "org.mozilla.thunderbird",
+                    remainingBundleIDs: ["org.mozilla.thunderbird"]) == nil,
+               "another installed copy of the app keeps the shortcut")
+        suite.expect(CommandBarRowShortcuts.appKey(bundleID: "com.apple.mail", path: "/Applications/Mail.app")
+                == "app.bundle.com.apple.mail",
+               "an app with a bundle ID is listed by it, not by where it lives")
+        // The uninstaller frees the row under this same key, so the catalog
+        // must build it here rather than spell the format out again.
+        suite.expect(commandBarCatalogLines.contains {
+                    $0.contains("stableKey: CommandBarRowShortcuts.appKey(bundleID: app.bundleID, path: app.id)")
+                },
+               "an app row is keyed by the same seam the uninstaller frees it under")
+
         // ⌃⌘D is Look Up (symbolic hotkey 70), which System Settings does not
         // list: an app row must offer to take it over, as a window layout row
         // does, instead of refusing it outright.

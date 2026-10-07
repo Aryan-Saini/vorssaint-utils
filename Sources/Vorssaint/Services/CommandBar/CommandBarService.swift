@@ -752,7 +752,7 @@ final class CommandBarService: ObservableObject {
         let takeOverKey = CommandBarRowShortcuts.takeOverKey(for: entry.stableKey)
         guard let shortcut else {
             SystemShortcutTakeover.setTakeOver(takeOverKey, false)
-            storeRowShortcut(nil, for: entry)
+            storeRowShortcut(nil, forKey: entry.stableKey)
             return nil
         }
         if let message = rowShortcutIssue(shortcut, for: entry) { return message }
@@ -762,7 +762,7 @@ final class CommandBarService: ObservableObject {
         case .save(let clearTakeOver):
             if clearTakeOver { SystemShortcutTakeover.setTakeOver(takeOverKey, false) }
         }
-        storeRowShortcut(shortcut, for: entry)
+        storeRowShortcut(shortcut, forKey: entry.stableKey)
         return nil
     }
 
@@ -781,7 +781,7 @@ final class CommandBarService: ObservableObject {
         guard AppFeature.commandBar.isAvailable else { return nil }
         if let message = rowShortcutIssue(shortcut, for: entry) { return message }
         SystemShortcutTakeover.setTakeOver(CommandBarRowShortcuts.takeOverKey(for: entry.stableKey), true)
-        storeRowShortcut(shortcut, for: entry)
+        storeRowShortcut(shortcut, forKey: entry.stableKey)
         return nil
     }
 
@@ -793,8 +793,16 @@ final class CommandBarService: ObservableObject {
             isTakenOver: SystemShortcutTakeover.isTakenOver)
     }
 
-    private func storeRowShortcut(_ shortcut: GlobalShortcut?, for entry: CommandBarEntry) {
-        let next = CommandBarRowShortcuts.setting(shortcut, for: entry.stableKey, in: rowShortcuts)
+    /// An app the uninstaller removed takes its combination with it, so the
+    /// keys are free for another app instead of held by a row that is gone.
+    func forgetRowShortcut(forKey key: String) {
+        guard AppFeature.commandBar.isAvailable, rowShortcuts[key] != nil else { return }
+        SystemShortcutTakeover.setTakeOver(CommandBarRowShortcuts.takeOverKey(for: key), false)
+        storeRowShortcut(nil, forKey: key)
+    }
+
+    private func storeRowShortcut(_ shortcut: GlobalShortcut?, forKey key: String) {
+        let next = CommandBarRowShortcuts.setting(shortcut, for: key, in: rowShortcuts)
         UserDefaults.standard.set(CommandBarRowShortcuts.encode(next),
                                   forKey: DefaultsKey.commandBarRowShortcuts)
         syncRowHotkeys()
@@ -2861,7 +2869,10 @@ final class CommandBarService: ObservableObject {
         return true
     }
 
-    private static func spotlightApplicationPaths() -> [String] {
+    /// Apps Spotlight finds in the home folder, which the bar lists beside the
+    /// application folders. The uninstaller asks for the same paths, so a copy
+    /// the bar still lists keeps its shortcut.
+    static func spotlightApplicationPaths() -> [String] {
         let result = Shell.run(
             "/usr/bin/mdfind",
             ["-onlyin", NSHomeDirectory(),
