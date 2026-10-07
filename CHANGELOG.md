@@ -14,6 +14,7 @@ All notable changes to this project are documented here. The format follows
 - The music bars and AI agent animations use much less GPU and battery, most of all on 120 Hz displays.
 - Switching between Timer, Pomodoro and Stopwatch animates as changing pages does, instead of the island jumping to its new size.
 - Now Playing follows music and videos from browsers and other apps on its own, and a paused video stays instead of switching to paused music. Settings → Dynamic Island → Content → Music → Automatically include videos and other apps.
+- Gestures open and close the island with shorter swipes and quick flicks.
 
 ### Changed
 - Clear unpinned asks first everywhere and says how many items it removes. Anything copied while it asks is kept.
