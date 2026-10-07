@@ -63,6 +63,9 @@ struct NotchCalendarStack: Equatable, Sendable {
     var others: Int { countdowns.count - 1 }
     /// The countdowns that reach the nearest moment together.
     var together: [NotchCalendarCountdown] { countdowns.filter { $0.target == first.target } }
+    /// Whether more than one event starts at the nearest moment. Ends that
+    /// share it, with each other or with a start, do not count.
+    var startsTogether: Bool { together.filter { !$0.ongoing }.count > 1 }
     /// The next later moment, when nothing shares the nearest one.
     var then: NotchCalendarCountdown? { together.count > 1 ? nil : countdowns.first { $0.target > first.target } }
 
