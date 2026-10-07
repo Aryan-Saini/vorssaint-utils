@@ -44,8 +44,10 @@ enum NotchMeetingPlatform: String, CaseIterable, Sendable {
     /// agenda or a document link never reads as a call.
     static func platform(for url: URL) -> NotchMeetingPlatform? {
         let scheme = url.scheme?.lowercased() ?? ""
-        if scheme == "zoommtg" || scheme == "zoomus" { return .zoom }
-        if scheme == "msteams" { return .teams }
+        // The apps' own schemes also open chats and other screens: only a
+        // join with a meeting number, or a Teams meeting, is a call.
+        if scheme == "zoommtg" || scheme == "zoomus" { return zoomNumber(url) != nil ? .zoom : nil }
+        if scheme == "msteams" { return url.path.lowercased().hasPrefix("/l/meetup-join/") ? .teams : nil }
         guard scheme == "https" || scheme == "http", let host = url.host?.lowercased() else { return nil }
         let path = url.path.lowercased()
         func on(_ domain: String) -> Bool { host == domain || host.hasSuffix("." + domain) }
@@ -56,7 +58,12 @@ enum NotchMeetingPlatform: String, CaseIterable, Sendable {
         if on("teams.microsoft.com") || on("teams.live.com") {
             return path.contains("meetup-join") || path.hasPrefix("/meet/") ? .teams : nil
         }
-        if on("webex.com") { return path.count > 1 ? .webex : nil }
+        if on("webex.com") {
+            // A personal room, a meeting number's join page, or the join service.
+            let joins = (path.hasPrefix("/meet/") && path.count > 6) || path.hasSuffix("/j.php")
+                || path.hasPrefix("/join/") || path.contains("/wbxmjs/joinservice/")
+            return joins ? .webex : nil
+        }
         if on("slack.com") { return path.contains("huddle") ? .slack : nil }
         if host == "discord.gg" { return .discord }
         if on("discord.com") { return path.hasPrefix("/channels/") || path.hasPrefix("/invite/") ? .discord : nil }
@@ -67,6 +74,14 @@ enum NotchMeetingPlatform: String, CaseIterable, Sendable {
         if host == "facetime.apple.com" { return .facetime }
         if on("chime.aws") { return .chime }
         return nil
+    }
+
+    /// The meeting number a native Zoom join carries, or nil for any other action.
+    static func zoomNumber(_ url: URL) -> String? {
+        guard url.path.lowercased() == "/join" else { return nil }
+        let number = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?
+            .first { $0.name == "confno" }?.value ?? ""
+        return number.isEmpty || !number.allSatisfy(\.isNumber) ? nil : number
     }
 }
 
@@ -116,6 +131,32 @@ struct NotchMeetingLink: Equatable, Sendable {
             guard url.path.lowercased().contains("meetup-join") else { return nil }
             let query = components?.percentEncodedQuery.map { "?" + $0 } ?? ""
             return URL(string: "msteams:" + (components?.percentEncodedPath ?? url.path) + query)
+        default:
+            return nil
+        }
+    }
+
+    /// The call as a page a browser opens: the link itself, or the web
+    /// meeting a native Zoom or Teams link stands for. Nil when there is none.
+    var webURL: URL? {
+        let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+        switch url.scheme?.lowercased() {
+        case "https", "http":
+            return url
+        case "zoommtg", "zoomus":
+            guard let number = NotchMeetingPlatform.zoomNumber(url) else { return nil }
+            let host = url.host?.lowercased() ?? ""
+            var web = URLComponents()
+            web.scheme = "https"
+            web.host = host == "zoom.us" || host.hasSuffix(".zoom.us") ? host : "zoom.us"
+            web.path = "/j/" + number
+            let password = components?.queryItems?.filter { $0.name == "pwd" } ?? []
+            web.queryItems = password.isEmpty ? nil : password
+            return web.url
+        case "msteams":
+            guard let components else { return nil }
+            let query = components.percentEncodedQuery.map { "?" + $0 } ?? ""
+            return URL(string: "https://teams.microsoft.com" + components.percentEncodedPath + query)
         default:
             return nil
         }
