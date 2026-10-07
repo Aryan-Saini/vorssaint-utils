@@ -1001,6 +1001,48 @@ enum CommandBarFeatureTests {
                 .map { abs($0.value - 150) < 0.001 } == true,
                "a comma decimal converts where that is the custom")
 
+        // A first group of 0 is never thousands, so "0,250" is a quarter where
+        // the dot is decimal, while "1,050" still groups.
+        let dotDecimalInputs: [(String, Double)] = [
+            ("1.5", 150.0), ("1,5", 150.0), ("-1,5", -150.0),
+            ("1,500", 150_000.0), ("-123,456", -12_345_600.0),
+            ("1,234.5", 123_450.0), ("1.234,5", 123_450.0),
+            ("1,234,567", 123_456_700.0),
+            ("0,250", 25.0), ("-0,500", -50.0), ("1,050", 105_000.0),
+        ]
+        let commaDecimalInputs: [(String, Double)] = [
+            ("1,5", 150.0), ("1.5", 150.0), ("-1.5", -150.0),
+            ("1.500", 150_000.0), ("-123.456", -12_345_600.0),
+            ("1.234,5", 123_450.0), ("1,234.5", 123_450.0),
+            ("1.234.567", 123_456_700.0),
+            ("0.250", 25.0), ("-0.500", -50.0), ("1.050", 105_000.0),
+        ]
+        // de_CH groups thousands with an apostrophe, pt_PT with a no-break
+        // space and fr_FR with a narrow one. There the alternate is whichever
+        // of "." and "," is not the decimal, the same as in the calculator.
+        for (region, decimal, grouping, inputs) in [
+            ("en_US", ".", ",", dotDecimalInputs),
+            ("de_CH", ".", "'", dotDecimalInputs),
+            ("de_DE", ",", ".", commaDecimalInputs),
+            ("pt_PT", ",", "\u{00A0}", commaDecimalInputs),
+            ("fr_FR", ",", "\u{202F}", commaDecimalInputs),
+        ] {
+            for (number, expected) in inputs {
+                let converted = CommandBarUnits.convert("\(number) m to cm",
+                                                       decimalSeparator: decimal,
+                                                       groupingSeparator: grouping,
+                                                       locale: Locale(identifier: "en_US"))
+                suite.expect(converted.map { abs($0.value - expected) < 0.001 } == true,
+                             "unit conversion in \(region) reads \(number) as \(expected) cm")
+            }
+            for number in ["1,,5", "1..5", "--1", "1-5"] {
+                suite.expect(CommandBarUnits.convert("\(number) m to cm",
+                                                     decimalSeparator: decimal,
+                                                     groupingSeparator: grouping) == nil,
+                             "unit conversion in \(region) refuses malformed number \(number)")
+            }
+        }
+
         // MeasurementFormatter words the unit from the localization data of the
         // macOS it runs on, not from the locale it is handed, so pinning
         // "5 ft 10.87 in" here failed on macOS 15.x with nothing changed
