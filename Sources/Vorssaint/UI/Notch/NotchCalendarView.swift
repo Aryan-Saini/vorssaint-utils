@@ -318,7 +318,7 @@ struct NotchCalendarUpNext: View {
         let shown = Array(stack.countdowns.prefix(limit ?? .max))
         VStack(alignment: .leading, spacing: Layout.spacing) {
             label(text.next, color: .white.opacity(0.7))
-            if stack.together.count > 1 { label(text.together, color: .orange) }
+            if stack.startsTogether { label(text.together, color: .orange) }
             TimelineView(.periodic(from: .now, by: 1)) { context in
                 VStack(spacing: 0) {
                     ForEach(Array(shown.enumerated()), id: \.offset) { index, countdown in

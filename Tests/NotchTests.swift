@@ -2719,6 +2719,13 @@ enum NotchTests {
         suite.expect(staggered?.together.count == 1 && staggered?.then?.event == sync
                      && staggered.map { $0.shown(at: base).event } == pcf,
                      "a later start does not take turns; it follows the nearest one")
+        let endsTogether = NotchCalendarStack([NotchCalendarCountdown(event: event("a", -600, 900), ongoing: true),
+                                               NotchCalendarCountdown(event: event("b", -300, 900), ongoing: true)])
+        let endMeetsStart = NotchCalendarStack([NotchCalendarCountdown(event: event("ending", -600, 900), ongoing: true),
+                                                NotchCalendarCountdown(event: event("next", 900, 2700), ongoing: false)])
+        suite.expect(stack?.startsTogether == true && staggered?.startsTogether == false
+                     && endsTogether?.startsTogether == false && endMeetsStart?.startsTogether == false,
+                     "only events starting at the same moment read as starting together, not shared or touching ends")
         suite.expect(staggered.map { NotchCalendarSupport.stackTimeText($0, shown: $0.first, then: "then", locale: locale) }
                      == "·\u{2009}then " + sync.start.formatted(.dateTime.hour().minute().locale(locale))
                      && stack.map { NotchCalendarSupport.stackTimeText($0, shown: $0.first, then: "then", locale: locale) }
