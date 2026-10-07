@@ -21,6 +21,7 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 - In the Clipboard history window, a new copy no longer moves the highlight, so Return pastes the entry you picked.
+- Focus follows mouse no longer flickers toward the window behind an open sheet or dialog, like a file list in System Settings.
 
 ### Contributors
 Thanks to @djc041006-bot, @mugurc, @nik2k-7 and @PathGao. Feedback: Brain and Martimm500.
