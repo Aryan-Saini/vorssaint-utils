@@ -26,6 +26,7 @@ All notable changes to this project are documented here. The format follows
 - The Clipboard history window is a shelf of cards along the bottom of the screen, and each card shows the app the copy came from.
 
 ### Fixed
+- Opening lyrics or Up next no longer changes the size of the player above them.
 - In the Clipboard history window, a new copy no longer moves the highlight, so Return pastes the entry you picked.
 - The screenshot editor no longer misses lines of text in very large and scrolling captures.
 - Focus follows mouse no longer flickers toward the window behind an open sheet or dialog, like a file list in System Settings.
