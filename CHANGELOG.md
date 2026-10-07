@@ -17,16 +17,20 @@ All notable changes to this project are documented here. The format follows
 - Gestures open and close the island with shorter swipes and quick flicks.
 - The calendar month can number its weeks. Settings → Dynamic Island → Content → Calendar → Week numbers.
 - AI Agents stops counting a Claude Code turn once the Mac has been offline for about 20 seconds, unless a shell command is still running.
+- Opening lyrics or Up next no longer changes the size of the player above them.
 
 ### Added
 - The screenshot editor's Pixelate tool is now Blur, and it can pixelate, blur or erase a whole area or only the text inside it.
+- Window layout snaps to the edge two displays share once you slow down there, and a quick drag still carries the window to the other display.
+- Network speeds can show in bits per second. Settings → System monitor → Network speed unit.
+- Connected Devices opens from the System section of the menu and from the island's System page, without its menu bar widget.
 
 ### Changed
 - Clear unpinned asks first everywhere and says how many items it removes. Anything copied while it asks is kept.
 - The Clipboard history window is a shelf of cards along the bottom of the screen, and each card shows the app the copy came from.
+- Pressing an app's Command Bar shortcut while its window is in front hides the app, and the next press brings it back.
 
 ### Fixed
-- Opening lyrics or Up next no longer changes the size of the player above them.
 - In the Clipboard history window, a new copy no longer moves the highlight, so Return pastes the entry you picked.
 - The screenshot editor no longer misses lines of text in very large and scrolling captures.
 - Focus follows mouse no longer flickers toward the window behind an open sheet or dialog, like a file list in System Settings.
@@ -35,9 +39,13 @@ All notable changes to this project are documented here. The format follows
 - The Command Bar calculator and unit conversions accept both decimal separators where thousands are grouped with a space or an apostrophe, and never read a number that starts with 0 as thousands.
 - Automatic Clean URL leaves a copy alone when it carries more than the link, like several items or a picture.
 - The manual Clean URL result follows the link and rules as you edit them, and switching a site off keeps the names you added.
+- Holding an extra mouse button to use the radial menu now highlights and picks slices.
+- The screenshot editor keeps all its controls inside the window for small captures.
+- Vorssaint no longer stops responding at launch while macOS is slow to report Launch at Login.
+- Removing an app with the Uninstaller frees its Command Bar shortcut for another app.
 
 ### Contributors
-Thanks to @AB-boi, @Acronyxxx, @dc0dr, @djc041006-bot, @emilianorobles, @JeanBaeez, @massisenergy, @mugurc, @nik2k-7, @nkudrin713, @odeioabacate, @PathGao, @Polovinkin, @sarat03 and @zecarreira. Feedback: Brain and Martimm500.
+Thanks to @AB-boi, @Acronyxxx, @adam8833, @dc0dr, @djc041006-bot, @emilianorobles, @georgebnov, @gxlactuss, @JeanBaeez, @luantedesco, @massisenergy, @mgailius, @mugurc, @Narangor, @nik2k-7, @niukanen1, @nkudrin713, @odeioabacate, @oskarsss, @PathGao, @Polovinkin, @priyanshuvishnoi, @samueltpoj, @sarat03, @suhrudsh, @ThelloD, @velit, @wuast94, @ywu73 and @zecarreira. Feedback: Brain and Martimm500.
 
 ## [3.4.1-beta.2] - 2026-10-06
 
