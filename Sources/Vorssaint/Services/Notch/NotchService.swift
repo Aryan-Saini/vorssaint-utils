@@ -641,8 +641,8 @@ final class NotchService: ObservableObject {
     }
 
     /// The wider of the two sides, measured with the strip's fonts and its
-    /// clearance from the curve: alone, the events' dots, title and "+1" or
-    /// the clock and the time beside it; paired, the dots and clock or the
+    /// clearance from the curve: alone, one event's dot or the "+1", and the
+    /// title, or the clock and the time beside it; paired, the mark and clock or the
     /// mark of what shares the island, with air beside the camera.
     private func calendarStripWing(for companion: NotchCompactActivity?, in geometry: NotchGeometry) -> CGFloat {
         guard let stack = NotchCalendarService.shared.stack else {
@@ -671,8 +671,9 @@ final class NotchService: ObservableObject {
         }.max() ?? 0
         let badge = stack.others > 0
             ? NotchCalendarSupport.stripTitleSpacing + NotchCapsuleLayout.calendarBadgeWidth(stack.others) : 0
-        let titleSide = NotchCalendarSupport.stackDotsWidth(stack.countdowns.count)
-            + NotchCalendarSupport.stripTitleSpacing + titleWidth + badge
+        let titleSide = NotchCalendarSupport.titleMarkWidth(stack.countdowns.count,
+                                                            spacing: NotchCalendarSupport.stripTitleSpacing)
+            + titleWidth + badge
         // The widest clock the hour can show, so the island keeps its size
         // while the minutes count down.
         let timeWidth = together.map {
@@ -723,19 +724,18 @@ final class NotchService: ObservableObject {
         }
     }
 
-    /// What several countdowns add beside the title: their other dots and
-    /// the "+1". The wing may grow by this much past its usual limit, so a
+    /// What several countdowns add beside the title: the "+1" in place of
+    /// the dot. The wing may grow by this much past its usual limit, so a
     /// title keeps the room it has alone.
     private var calendarStackMarks: CGFloat {
         guard let stack = NotchCalendarService.shared.stack, stack.others > 0 else { return 0 }
-        return NotchCalendarSupport.stackDotsWidth(stack.countdowns.count) - NotchCalendarSupport.stripDotWidth
-            + NotchCalendarSupport.stripTitleSpacing + NotchCapsuleLayout.calendarBadgeWidth(stack.others)
+        return max(0, NotchCapsuleLayout.calendarBadgeWidth(stack.others) - NotchCalendarSupport.stripDotWidth)
     }
 
-    /// An event's dot and the widest clock its hour can show, so the island
-    /// keeps its size while the minutes count down.
+    /// An event's dot, or the "+1" for several, and the widest clock its
+    /// hour can show, so the island keeps its size while the minutes count down.
     private var calendarClockWidth: CGFloat {
-        NotchCalendarSupport.stackDotsWidth(NotchCalendarService.shared.countdowns.count)
+        NotchCalendarSupport.clockMarkWidth(NotchCalendarService.shared.countdowns.count)
             + NotchCalendarSupport.stripClockSpacing
             + ("00:00" as NSString).size(withAttributes: [
                 .font: NSFont.monospacedDigitSystemFont(ofSize: 13, weight: .medium)

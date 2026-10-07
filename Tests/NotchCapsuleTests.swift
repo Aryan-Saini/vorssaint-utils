@@ -249,10 +249,10 @@ enum NotchCapsuleTests {
                 Layout.timerSurface(reading: "9m", companion: .calendar, workingAgents: 0, downloadPercent: false,
                                     geometry: geometry, language: .enUS, events: count).width
             }
-            let dots = NotchCalendarSupport.stackDotsWidth(events, dot: Layout.calendarDotSide)
-                - NotchCalendarSupport.stackDotsWidth(1, dot: Layout.calendarDotSide)
-            suite.expect(abs(timerAndEvents(events) - timerAndEvents(1) - dots) < 0.001,
-                         "a timer beside \(events) stacked events keeps room for every event's dot")
+            let mark = NotchCalendarSupport.clockMarkWidth(events, dot: Layout.calendarDotSide)
+                - NotchCalendarSupport.clockMarkWidth(1, dot: Layout.calendarDotSide)
+            suite.expect(abs(timerAndEvents(events) - timerAndEvents(1) - mark) < 1,
+                         "a timer beside \(events) events keeps room for their +N")
         }
         for font in [Layout.titleFont, Layout.detailFont, Layout.levelFont, Layout.readingFont, Layout.smallFont] {
             suite.expect((geometry.stripBodyHeight - font.capHeight) / 2 >= 4,

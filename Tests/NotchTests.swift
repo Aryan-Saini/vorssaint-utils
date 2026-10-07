@@ -2798,10 +2798,14 @@ enum NotchTests {
         suite.expect(!early.announces && opened.announces && !minuteBefore.announces
                      && NotchCalendarSupport.joinTransition(callDown, now: now) == call.start.addingTimeInterval(-lead),
                      "a call alone opens the island once, when it can be joined, and the island reads again then")
-        suite.expect(NotchCalendarSupport.stackDotsWidth(1) == NotchCalendarSupport.stripDotWidth
-                     && NotchCalendarSupport.stackDotsWidth(3) == NotchCalendarSupport.stackDotsWidth(9)
-                     && NotchCalendarSupport.stackDotsWidth(2) > NotchCalendarSupport.stackDotsWidth(1),
-                     "each countdown adds an overlapping dot, up to three")
+        let dot = NotchCalendarSupport.stripDotWidth
+        suite.expect(NotchCalendarSupport.titleMarkWidth(1, spacing: 4) == dot + 4
+                     && NotchCalendarSupport.titleMarkWidth(2, spacing: 4) == 0
+                     && NotchCalendarSupport.titleMarkWidth(5, spacing: 4) == 0,
+                     "one event leads its title with its dot; several drop it for the +1 after the title")
+        suite.expect(NotchCalendarSupport.clockMarkWidth(1) == dot
+                     && NotchCalendarSupport.clockMarkWidth(3) == NotchCapsuleLayout.calendarBadgeWidth(2),
+                     "beside another activity, one event shows its dot and several show their +N")
         // A meeting that ends in 30 minutes, 15 minutes before the next one starts.
         let meeting = event("meeting", -1800, 1800)
         let afterGap = event("after gap", 2700, 4500)

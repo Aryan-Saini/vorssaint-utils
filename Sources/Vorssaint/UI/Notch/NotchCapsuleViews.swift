@@ -601,7 +601,7 @@ struct NotchCapsuleCalendarStrip: View {
                         }
                     } else {
                         HStack(spacing: CapsuleLayout.spacing) {
-                            NotchCalendarStrip.dots(stack, shown: countdown, side: CapsuleLayout.calendarDotSide)
+                            NotchCalendarStrip.leadingDot(stack, shown: countdown, side: CapsuleLayout.calendarDotSide)
                             Text(title).capsuleTitle().truncationMode(.tail)
                                 .id(countdown.event.id).transition(.opacity)
                             if stack.others > 0 { NotchCalendarStrip.badge(stack.others) }
@@ -638,10 +638,10 @@ struct NotchCapsuleCalendarStrip: View {
         }
     }
 
-    /// The events' dots and the countdown, as a pair shows them.
+    /// The event's dot, or the "+1" for several, and the countdown, as a pair shows them.
     static func clockMark(_ stack: NotchCalendarStack, _ countdown: NotchCalendarCountdown, now: Date) -> some View {
         HStack(spacing: CapsuleLayout.markSpacing) {
-            NotchCalendarStrip.dots(stack, shown: countdown, side: CapsuleLayout.calendarDotSide)
+            NotchCalendarStrip.countMark(stack, shown: countdown, side: CapsuleLayout.calendarDotSide)
             clock(NotchCalendarSupport.countdownText(until: countdown.target, now: now), ongoing: countdown.ongoing)
         }
     }
