@@ -165,6 +165,50 @@ enum CommandBarFeatureTests {
         suite.expect(math("1.500+1", decimal: ",", grouping: ".") == "1,501",
                "three digits after the grouping separator read as thousands")
 
+        // Macs that group thousands with a space or an apostrophe.
+        for (name, grouping) in [("pt_PT", "\u{00A0}"), ("fr_FR", "\u{202F}")] {
+            suite.expect(mathValue("1.5+1", decimal: ",", grouping: grouping) == 2.5
+                    && mathValue("0.1+0.2", decimal: ",", grouping: grouping) == 0.3,
+                   "a dot decimal still works where the comma is the decimal point: \(name)")
+            suite.expect(mathValue("1.500+1", decimal: ",", grouping: grouping) == 1501
+                    && mathValue("1.234,5+1", decimal: ",", grouping: grouping) == 1235.5
+                    && mathValue("1,234.5+1", decimal: ",", grouping: grouping) == 1235.5,
+                   "the dot reads as thousands only when it looks the part: \(name)")
+            suite.expect(mathValue("1\(grouping)234,5+1", decimal: ",", grouping: grouping) == 1235.5,
+                   "the Mac's own grouping space still reads as thousands: \(name)")
+            suite.expect(mathValue("1\(grouping)5+1", decimal: ",", grouping: grouping) == nil,
+                   "a grouping space is never a decimal point: \(name)")
+        }
+        suite.expect(mathValue("1,5+1", decimal: ".", grouping: "'") == 2.5
+                && mathValue("1,234.5+1", decimal: ".", grouping: "'") == 1235.5
+                && mathValue("1'234.5+1", decimal: ".", grouping: "'") == 1235.5,
+               "a comma decimal works where thousands are grouped with an apostrophe")
+        suite.expect(mathValue("1.2.3+1", decimal: ",", grouping: "\u{00A0}") == nil,
+               "a repeated alternate separator that is not thousands has no answer")
+
+        // A grouping space or apostrophe groups only when digits follow it.
+        suite.expect(mathValue("1\u{00A0}+ 2", decimal: ",", grouping: "\u{00A0}") == 3,
+               "a no-break space after a number before an operator is just a space")
+        suite.expect(mathValue("200*15\u{202F}%", decimal: ",", grouping: "\u{202F}") == 30,
+               "a narrow no-break space before percent still answers")
+        suite.expect(mathValue("2\u{00A0}(3)", decimal: ",", grouping: "\u{00A0}") == 6,
+               "a no-break space before a bracket keeps the implicit product")
+        suite.expect(mathValue("1,5\u{00A0}+ 2", decimal: ",", grouping: "\u{00A0}") == 3.5,
+               "a decimal followed by a no-break space reads as that decimal")
+        suite.expect(mathValue("1\u{00A0}234\u{00A0}+ 1", decimal: ",", grouping: "\u{00A0}") == 1235,
+               "grouped thousands followed by a no-break space still answer")
+        suite.expect(mathValue("1\u{00A0}5+1", decimal: ",", grouping: "\u{00A0}") == nil,
+               "a grouping space between digits is never a decimal point")
+        // Thousands never start at zero.
+        for (decimal, grouping) in [(",", "\u{00A0}"), (",", "\u{202F}"), (".", "'"), (",", "."), (".", ",")] {
+            let alternate = decimal == "," ? "." : ","
+            suite.expect(mathValue("0\(alternate)125*8", decimal: decimal, grouping: grouping) == 1
+                    && mathValue("0\(alternate)500+1", decimal: decimal, grouping: grouping) == 1.5,
+                   "a number that starts at zero has decimals, never thousands, with \(decimal) and \(grouping)")
+        }
+        suite.expect(mathValue("0\u{00A0}125+1", decimal: ",", grouping: "\u{00A0}") == nil,
+               "a grouping space after a lone zero is not thousands")
+
         suite.expect(CommandBarMath.evaluate("([2+3")?.closingBrackets == "])"
                 && CommandBarMath.evaluate("2+3")?.closingBrackets == "",
                "virtual closers preserve bracket kind and nesting")
