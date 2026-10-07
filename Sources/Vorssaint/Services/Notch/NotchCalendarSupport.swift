@@ -390,13 +390,16 @@ enum NotchCalendarSupport {
         stack.then.map { thenText($0, then: then, locale: locale) } ?? timeText(shown, locale: locale)
     }
 
-    /// The dots drawn for a stack: one per countdown, up to three, each
-    /// overlapping the last by `stackDotOverlap`.
-    static let stackDotLimit = 3
-    static let stackDotOverlap: CGFloat = 2
-    static func stackDotsWidth(_ count: Int, dot: CGFloat = stripDotWidth) -> CGFloat {
-        let dots = min(max(count, 1), stackDotLimit)
-        return dot + CGFloat(dots - 1) * (dot - stackDotOverlap)
+    /// What leads the title: one event's dot and the gap after it. Several
+    /// countdowns lead with the title alone; the "+1" after it counts them.
+    static func titleMarkWidth(_ count: Int, dot: CGFloat = stripDotWidth, spacing: CGFloat) -> CGFloat {
+        count > 1 ? 0 : dot + spacing
+    }
+
+    /// Beside another activity, where no title shows: one event's dot, or
+    /// the "+1" for several.
+    static func clockMarkWidth(_ count: Int, dot: CGFloat = stripDotWidth) -> CGFloat {
+        count > 1 ? NotchCapsuleLayout.calendarBadgeWidth(count - 1) : dot
     }
 
     static func countdownText(until start: Date, now: Date) -> String {
