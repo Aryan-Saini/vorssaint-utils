@@ -12,6 +12,34 @@ import ImageIO
 import VMStatisticsCompat
 
 enum RepositoryFeatureTests {
+    /// Run the production `result` and `copy` of the manual cleaner in
+    /// Settings and in the menu panel, with a cleaner whose rules the test
+    /// changes, recording what reaches the clipboard.
+    final class URLCleanerManualCleaner {
+        var rules = URLCleaning.Rules.none
+        var copied: [String] = []
+        func clean(_ text: String) -> URLCleaning.Result? { URLCleaning.clean(text, rules: rules) }
+        func copy(_ urlString: String) { copied.append(urlString) }
+    }
+    protocol URLCleanerManualSurface: AnyObject {
+        var cleaner: URLCleanerManualCleaner { get }
+        var input: String { get set }
+        func copy()
+    }
+    final class URLCleanerManualSettings: URLCleanerManualSurface {
+        let cleaner = URLCleanerManualCleaner()
+        var input = ""
+        var copied: String?
+    }
+    final class URLCleanerManualPanel: URLCleanerManualSurface {
+        let cleaner = URLCleanerManualCleaner()
+        var input = ""
+        var copied: String?
+        var globalNames = ""
+        var siteNames = ""
+        var disabledNames = ""
+    }
+
     private struct SourceRead: Sendable {
         let path: String
         let source: String?
@@ -117,6 +145,14 @@ enum RepositoryFeatureTests {
         }
     }
 
+    /// Runs the production site switch and name removal of the rules list
+    /// against stored names the test reads back.
+    final class URLCleanerSiteSwitchHost {
+        var globalNames = ""
+        var siteNames = ""
+        var disabledNames = ""
+    }
+
     static func run(_ suite: TestSuite) {
         func expectEqual(_ actual: String, _ expected: String, _ label: String,
                          file: StaticString = #filePath, line: UInt = #line) {
@@ -142,7 +178,9 @@ enum RepositoryFeatureTests {
             "Sources/Vorssaint/Services/QuickTools/RecentCaptureStore.swift",
             "Sources/Vorssaint/Services/SelfUninstall.swift",
             "Sources/Vorssaint/Services/Shelf/ShelfService.swift",
+            "Sources/Vorssaint/Services/URLCleanerService.swift",
             "Sources/Vorssaint/Support/Uninstaller.swift",
+            "Sources/Vorssaint/UI/MenuPanel/PanelURLCleanerView.swift",
             "Sources/Vorssaint/UI/Settings/URLCleanerSettings.swift",
             "Sources/Vorssaint/UI/Theme.swift",
         ]
@@ -189,6 +227,53 @@ enum RepositoryFeatureTests {
         suite.expect(urlCleanerSettingsSource.components(separatedBy: "TextField(").count
                 == urlCleanerSettingsSource.components(separatedBy: ".labelsHidden()").count,
                "every Clean URL field hides its label so the field owns the row")
+
+        // The manual result is worked out from the field, so editing the link
+        // or the rules can never leave an older result for Copy to take.
+        let manualSurfaces: [(String, URLCleanerManualSurface)] = [
+            ("Settings", URLCleanerManualSettings()), ("menu panel", URLCleanerManualPanel()),
+        ]
+        for (surface, host) in manualSurfaces {
+            host.input = "https://youtu.be/abc?si=x"
+            host.copy()
+            host.input = "https://example.com/?utm_source=a&keep=1"
+            host.copy()
+            host.cleaner.rules = URLCleaning.rules(globalNames: "keep", siteNames: nil, disabledNames: nil)
+            host.copy()
+            suite.expect(host.cleaner.copied == ["https://youtu.be/abc", "https://example.com/?keep=1",
+                                                 "https://example.com/"],
+                   "\(surface) Copy takes the field's link under the current rules: \(host.cleaner.copied)")
+        }
+        // The result reads the stored rules through the service, so each
+        // surface has to observe every key they come from and read it where
+        // the body works the result out. SwiftUI only redraws for a stored
+        // value the last render read, so a rule changed in Settings beside
+        // the open menu panel would leave the panel showing a link Copy no
+        // longer takes.
+        func memberText(_ lines: [String], _ prefix: String) -> String {
+            lines.firstIndex { $0.hasPrefix(prefix) }.map { start in
+                lines[start...].prefix { $0 != "    }" }.joined(separator: "\n")
+            } ?? ""
+        }
+        let storedRules = memberText(repository.lines(at: "Sources/Vorssaint/Services/URLCleanerService.swift"),
+                                     "    private static var rules: URLCleaning.Rules {")
+        let ruleKeys = storedRules.components(separatedBy: "DefaultsKey.").dropFirst()
+            .map { rest in String(rest.prefix { $0.isLetter || $0.isNumber }) }
+        for (surface, path) in [("Settings", "Sources/Vorssaint/UI/Settings/URLCleanerSettings.swift"),
+                                ("menu panel", "Sources/Vorssaint/UI/MenuPanel/PanelURLCleanerView.swift")] {
+            let lines = repository.lines(at: path)
+            let reads = memberText(lines, "    private var result:") + "\n" + memberText(lines, "    private var rules:")
+            let unobserved = ruleKeys.filter { key in
+                guard let declaration = lines.first(where: { $0.contains("@AppStorage(DefaultsKey.\(key)) private var ") }),
+                      let name = declaration.components(separatedBy: "private var ").last?
+                        .prefix(while: { $0.isLetter || $0.isNumber }),
+                      !name.isEmpty else { return true }
+                // A value read, not an argument label of the same name.
+                return reads.range(of: "(?<![\\w.])\(name)(?![\\w:])", options: .regularExpression) == nil
+            }
+            suite.expect(!ruleKeys.isEmpty && unobserved.isEmpty,
+                   "\(surface) redraws its result when a rule changes: \(ruleKeys), unobserved \(unobserved)")
+        }
 
         // Rules are stored as a difference from the built-in tables, never as
         // a copy of them, so names a later version adds still reach someone
@@ -246,6 +331,48 @@ enum RepositoryFeatureTests {
             .flatMap(\.entries).map(\.name).filter { $0 != $0.lowercased() }
         suite.expect(upperCaseBuiltIns.isEmpty,
                "built-in names are lowercase, since matching and switched off names are: \(upperCaseBuiltIns)")
+        let siteSwitch = URLCleanerSiteSwitchHost()
+        siteSwitch.siteNames = "weibo.com|sudaref"
+        siteSwitch.disabledNames = "youtube.com|si"
+        func switchedRules() -> URLCleaning.Rules {
+            URLCleaning.rules(globalNames: siteSwitch.globalNames, siteNames: siteSwitch.siteNames,
+                              disabledNames: siteSwitch.disabledNames)
+        }
+        func switchedGroup(_ site: String) -> URLCleaning.RuleGroup? {
+            URLCleaning.ruleGroups(rules: switchedRules()).first { $0.site == site }
+        }
+        let youtubeLink = "https://www.youtube.com/watch?v=a&si=x&feature=y"
+        for site in ["weibo.com", "youtube.com"] {
+            switchedGroup(site).map { siteSwitch.setSite($0, enabled: false) }
+        }
+        suite.expect(switchedGroup("weibo.com")?.entries.map(\.name) == ["sudaref"]
+                && switchedGroup("weibo.com")?.enabledCount == 0
+                && URLCleaning.clean("https://weibo.com/a?sudaref=x", rules: switchedRules())?.removed == [],
+               "switching a site off keeps the name the user added to it, switched off")
+        suite.expect(switchedGroup("youtube.com")?.enabledCount == 0
+                && URLCleaning.clean(youtubeLink, rules: switchedRules())?.removed == [],
+               "switching a built-in site off switches off every built-in name: \(siteSwitch.disabledNames)")
+        for site in ["weibo.com", "youtube.com"] {
+            switchedGroup(site).map { siteSwitch.setSite($0, enabled: true) }
+        }
+        let youtubeAllOn = switchedGroup("youtube.com")
+            .map { !$0.entries.isEmpty && $0.enabledCount == $0.entries.count } ?? false
+        suite.expect(siteSwitch.disabledNames.isEmpty && youtubeAllOn
+                && URLCleaning.clean("https://weibo.com/a?sudaref=x", rules: switchedRules())?.removed == ["sudaref"]
+                && URLCleaning.clean(youtubeLink, rules: switchedRules())?.removed == ["si", "feature"],
+               "switching a site back on turns on every name it lists, one off before included: \(siteSwitch.disabledNames)")
+        // A name deleted while its row is off goes from the switched off
+        // names too, or adding it again later would bring it back off.
+        siteSwitch.globalNames = "keep"
+        for site in ["weibo.com", URLCleaning.allSites] {
+            switchedGroup(site).map { siteSwitch.setSite($0, enabled: false) }
+        }
+        siteSwitch.remove("sudaref", from: "weibo.com")
+        siteSwitch.remove("keep", from: URLCleaning.allSites)
+        let leftOff = URLCleaning.tokens(from: siteSwitch.disabledNames)
+        suite.expect(siteSwitch.siteNames.isEmpty && siteSwitch.globalNames.isEmpty
+                && leftOff["weibo.com"] == nil && leftOff[URLCleaning.allSites]?.contains("keep") != true,
+               "deleting a name the user added drops it from the switched off names too: \(siteSwitch.disabledNames)")
         expectEqual(URLCleaning.siteKey(from: " https://WWW.Weibo.com/path?x=1 ") ?? "",
                     "weibo.com", "the site field takes a pasted link and keeps the host")
         suite.expect(URLCleaning.siteKey(from: "not a host") == nil,
