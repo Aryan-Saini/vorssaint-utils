@@ -16,15 +16,19 @@ All notable changes to this project are documented here. The format follows
 - Now Playing follows music and videos from browsers and other apps on its own, and a paused video stays instead of switching to paused music. Settings → Dynamic Island → Content → Music → Automatically include videos and other apps.
 - Gestures open and close the island with shorter swipes and quick flicks.
 
+### Added
+- The screenshot editor's Pixelate tool is now Blur, and it can pixelate, blur or erase a whole area or only the text inside it.
+
 ### Changed
 - Clear unpinned asks first everywhere and says how many items it removes. Anything copied while it asks is kept.
 
 ### Fixed
 - In the Clipboard history window, a new copy no longer moves the highlight, so Return pastes the entry you picked.
+- The screenshot editor no longer misses lines of text in very large and scrolling captures.
 - Focus follows mouse no longer flickers toward the window behind an open sheet or dialog, like a file list in System Settings.
 
 ### Contributors
-Thanks to @djc041006-bot, @mugurc, @nik2k-7 and @PathGao. Feedback: Brain and Martimm500.
+Thanks to @AB-boi, @djc041006-bot, @emilianorobles, @mugurc, @nik2k-7 and @PathGao. Feedback: Brain and Martimm500.
 
 ## [3.4.1-beta.2] - 2026-10-06
 
