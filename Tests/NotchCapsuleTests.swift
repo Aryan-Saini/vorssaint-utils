@@ -244,6 +244,16 @@ enum NotchCapsuleTests {
         suite.expect(abs(visible(eventAndMusic) - max(visible(geometry.restingSize(showsContent: false)),
                                                       eventAndMusicContent)) < 1,
                      "an event paired with music hugs the cover and the event's countdown, its title left out")
+        for events in [2, 3] {
+            func timerAndEvents(_ count: Int) -> CGFloat {
+                Layout.timerSurface(reading: "9m", companion: .calendar, workingAgents: 0, downloadPercent: false,
+                                    geometry: geometry, language: .enUS, events: count).width
+            }
+            let dots = NotchCalendarSupport.stackDotsWidth(events, dot: Layout.calendarDotSide)
+                - NotchCalendarSupport.stackDotsWidth(1, dot: Layout.calendarDotSide)
+            suite.expect(abs(timerAndEvents(events) - timerAndEvents(1) - dots) < 0.001,
+                         "a timer beside \(events) stacked events keeps room for every event's dot")
+        }
         for font in [Layout.titleFont, Layout.detailFont, Layout.levelFont, Layout.readingFont, Layout.smallFont] {
             suite.expect((geometry.stripBodyHeight - font.capHeight) / 2 >= 4,
                          "the capsule's text keeps clear of its top and bottom: \(font.pointSize) pt")
