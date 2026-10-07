@@ -2748,6 +2748,30 @@ enum NotchTests {
         suite.expect(NotchMeetingLink.find(url: URL(string: "https://zoom.us/pricing"), location: "https://meet.google.com/",
                                            notes: "https://docs.google.com/document/d/1") == nil,
                      "a service's other pages and documents are not calls")
+        func platform(_ link: String) -> NotchMeetingPlatform? { NotchMeetingPlatform.platform(for: URL(string: link)!) }
+        suite.expect(platform("zoommtg://zoom.us/chat?jid=a%40xmpp.zoom.us") == nil
+                     && platform("zoomus://zoom.us/start") == nil
+                     && platform("zoommtg://zoom.us/join?action=join") == nil
+                     && platform("msteams:/l/chat/0/0?users=a@example.com") == nil
+                     && platform("msteams:/l/channel/19%3aabc%40thread.tacv2/General") == nil
+                     && platform("https://company.webex.com/webappng/sites/company/dashboard") == nil
+                     && platform("https://company.webex.com/company/ldr.php") == nil,
+                     "the apps' own links to chats and screens, and Webex's other pages, are not calls")
+        suite.expect(platform("zoommtg://us02web.zoom.us/join?action=join&confno=81234567890&pwd=abc123") == .zoom
+                     && platform("msteams:/l/meetup-join/19%3ameeting_x%40thread.v2/0?context=%7b%7d") == .teams
+                     && platform("https://company.webex.com/company/j.php?MTID=m123") == .webex
+                     && platform("https://company.webex.com/join/krista") == .webex,
+                     "native Zoom joins, Teams meetings and Webex's join pages are calls")
+        suite.expect(NotchMeetingLink.find(url: URL(string: "msteams:/l/chat/0/0?users=a@example.com"), location: "",
+                                           notes: notes)?.platform == .meet,
+                     "a chat link in the event's URL does not hide the call in its notes")
+        let nativeZoom = NotchMeetingLink(platform: .zoom, url: URL(string:
+            "zoommtg://us02web.zoom.us/join?action=join&confno=81234567890&pwd=abc123")!)
+        let nativeTeams = NotchMeetingLink(platform: .teams, url: URL(string:
+            "msteams:/l/meetup-join/19%3ameeting_x%40thread.v2/0?context=%7b%7d")!)
+        suite.expect(nativeZoom.webURL == zoom && nativeTeams.webURL?.absoluteString == teams
+                     && NotchMeetingLink(platform: .zoom, url: zoom).webURL == zoom,
+                     "a native Zoom or Teams link opens its web meeting in a browser; a web link opens itself")
         let safelink = "https://nam12.safelinks.protection.outlook.com/?url=https%3A%2F%2Fcompany.webex.com%2Fmeet%2Fkrista&data=1"
         suite.expect(NotchMeetingLink.find(url: nil, location: "", notes: "Join: " + safelink)?.url.absoluteString
                      == "https://company.webex.com/meet/krista",
