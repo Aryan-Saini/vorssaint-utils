@@ -7,9 +7,9 @@ import SwiftUI
 /// camera and moves below a physical notch when the menu bar cannot spare
 /// two useful wings. Paired with another activity, that activity's mark
 /// takes the title's side and the event keeps its dot and clock. With more
-/// than one countdown, every event adds its dot and a "+1" follows the
-/// title; events starting together take turns, and a later one is named by
-/// its time beside the clock.
+/// than one countdown the dot gives way to a "+1" after the title, or beside
+/// the clock when paired; events starting together take turns, and a later
+/// one is named by its time beside the clock.
 struct NotchCalendarStrip: View {
     @ObservedObject var service: NotchService
     /// Where the island draws it: its own strip as of the last update, or
@@ -79,7 +79,7 @@ struct NotchCalendarStrip: View {
         // The row below the camera ends in the island's deep lower corners;
         // a fixed margin left the dot and the clock on their curve.
         HStack(spacing: 6) {
-            Self.dots(stack, shown: countdown)
+            Self.leadingDot(stack, shown: countdown)
             Self.title(title, id: countdown.event.id)
                 .frame(maxWidth: .infinity, alignment: .leading)
             if stack.others > 0 { Self.badge(stack.others) }
@@ -95,7 +95,7 @@ struct NotchCalendarStrip: View {
         let inset = geometry.compactActivityEdgeInset(boxHeight: 9, radius: 0)
         return HStack(spacing: 0) {
             HStack(spacing: NotchCalendarSupport.stripTitleSpacing) {
-                Self.dots(stack, shown: countdown)
+                Self.leadingDot(stack, shown: countdown)
                 Self.title(title, id: countdown.event.id)
                 if stack.others > 0 { Self.badge(stack.others) }
             }
@@ -158,28 +158,27 @@ struct NotchCalendarStrip: View {
         return title.isEmpty ? untitled : title
     }
 
-    /// The events' dots and the clock, as the island draws them beside another activity.
+    /// The event's dot, or the "+1" for several, and the clock, as the
+    /// island draws them beside another activity.
     static func clockMark(_ stack: NotchCalendarStack, _ countdown: NotchCalendarCountdown,
                           remaining: String) -> some View {
         HStack(spacing: NotchCalendarSupport.stripClockSpacing) {
-            dots(stack, shown: countdown)
+            countMark(stack, shown: countdown)
             clock(remaining, ongoing: countdown.ongoing)
         }
     }
 
-    /// One dot per countdown, up to three, the shown event's in front.
-    static func dots(_ stack: NotchCalendarStack, shown: NotchCalendarCountdown,
-                     side: CGFloat = NotchCalendarSupport.stripDotWidth) -> some View {
-        let rest = stack.countdowns.filter { $0 != shown }
-        let events = ([shown] + rest).prefix(NotchCalendarSupport.stackDotLimit).map(\.event)
-        return HStack(spacing: -NotchCalendarSupport.stackDotOverlap) {
-            ForEach(Array(events.enumerated()), id: \.offset) { index, event in
-                dot(event, side: side)
-                    .overlay { if index > 0 { Circle().stroke(.black, lineWidth: 1) } }
-                    .zIndex(Double(-index))
-            }
-        }
-        .accessibilityHidden(true)
+    /// The dot before the title, only while one event counts down; with
+    /// several, the "+1" after the title says so instead.
+    @ViewBuilder static func leadingDot(_ stack: NotchCalendarStack, shown: NotchCalendarCountdown,
+                                        side: CGFloat = NotchCalendarSupport.stripDotWidth) -> some View {
+        if stack.others == 0 { dot(shown.event, side: side) }
+    }
+
+    /// Where no title shows: the event's dot, or the "+1" for several.
+    @ViewBuilder static func countMark(_ stack: NotchCalendarStack, shown: NotchCalendarCountdown,
+                                       side: CGFloat = NotchCalendarSupport.stripDotWidth) -> some View {
+        if stack.others > 0 { badge(stack.others) } else { dot(shown.event, side: side) }
     }
 
     /// A title that fades into the next event's when they take turns.
