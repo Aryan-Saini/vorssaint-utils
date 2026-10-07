@@ -1272,6 +1272,17 @@ def main():
           + declaration(music, "    func refreshAutomation()")
           + declaration(music, "    private func updateAutomation(").replace("private func", "func", 1)
           + "}\n}\n")
+    shuffle = "Sources/Vorssaint/Services/Notch/NotchShuffleService.swift"
+    write("NotchShuffleFlow.swift", "import Foundation\n\nextension NotchMusicAutomationFlowContract {\n"
+          + "final class ShuffleService {\nvar availability: NotchMusicAutomation.Availability?\nvar enabled: Bool?\n"
+          + "var allowed = true\nvar pending = false\nvar requestingAccess = false\nlet queue = ShuffleQueue()\n"
+          + "var generation = UUID()\nvar switchID = UUID()\nvar open = false\n"
+          + declaration(shuffle, "    var isOffered:")
+          + declaration(shuffle, "    func refresh(for playback:")
+          + declaration(shuffle, "    func toggle()")
+          + declaration(shuffle, "    func stop()")
+          + declaration(shuffle, "    private func requestAccess(").replace("private func", "func", 1)
+          + "}\n}\n")
 
     brightness_row = "Sources/Vorssaint/UI/MenuPanel/BrightnessSection.swift"
     write("SoftwareDimmingRow.swift", "import CoreGraphics\nimport Foundation\n\n"

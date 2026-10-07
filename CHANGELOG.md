@@ -8,6 +8,7 @@ All notable changes to this project are documented here. The format follows
 
 ### Dynamic Island
 - Controls can show a keyboard light slider next to Volume and Brightness, and its icon turns the light off and on. Settings → Dynamic Island → Content → Controls.
+- The music page can switch shuffle for players that offer it to scripts, such as Spotify and Music, beside the playback controls. It follows the player's own setting, and stays off while the songs playing cannot be shuffled, as for a Spotify radio. The first press asks for Automation permission.
 - Up next says when the player does not share its upcoming songs, instead of showing an empty queue.
 - The volume indicator stays hidden while headphones like AirPods Pro adjust their own level. Volume keys still show it.
 - With Hide timer countdown on, the closed island shows the timer when time is up and keeps it until you dismiss it.
