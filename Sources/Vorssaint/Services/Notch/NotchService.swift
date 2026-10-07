@@ -1091,6 +1091,7 @@ final class NotchService: ObservableObject {
                                                                               locale: Locale(identifier: language.rawValue)),
                                        companion: companion, workingAgents: working,
                                        downloadPercent: download?.fraction != nil, geometry: geometry, language: language,
+                                       events: NotchCalendarService.shared.countdowns.count,
                                        calendarLeadTime: NotchCalendarService.shared.countdownLeadTime)
         case .downloads:
             return layout.downloadSurface(name: download?.name ?? FeatureStrings.notchFiles(language).downloadsTitle,
