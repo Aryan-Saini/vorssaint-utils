@@ -1459,6 +1459,7 @@ def main():
               "    private func makeEdgeSnapDrag(",
               "    private func updateEdgeSnapDrag(",
               "    private func edgeSnapTarget(",
+              "    private var edgeSnapLayout:",
               "    private func scheduleEdgeSnapStillCheck()",
               "    private func armEdgeSnapStillCheck(",
               "    private func resetEdgeSnapTrail()",
