@@ -15,6 +15,20 @@ enum CommandBarRowShortcuts {
     /// for every letter and for other commands.
     static let limit = 64
 
+    /// An app's own combination puts it away only when the app is in front
+    /// and the window in front of every other app's is its own. Otherwise
+    /// the app comes forward, raising or opening a window as the combination
+    /// always did, since hiding it would make that take a second press.
+    /// That covers Finder made active by a click on the desktop, with its
+    /// windows buried under another app's or with none, and an app whose
+    /// last window was closed, minimized or left on another Space. The window
+    /// list is read only for an app already in front, so bringing an app
+    /// forward, the common press, never waits on the window server.
+    static func hidesAppInFront(isFrontmost: Bool, isHidden: Bool,
+                                ownsFrontWindow: @autoclosure () -> Bool) -> Bool {
+        isFrontmost && !isHidden && ownsFrontWindow()
+    }
+
     /// A cold catalog may arrive after the person changed their shortcut.
     /// Only the latest request, with its original binding still intact, runs.
     struct PendingAppLaunch {

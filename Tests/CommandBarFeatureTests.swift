@@ -1499,6 +1499,64 @@ enum CommandBarFeatureTests {
                "a bare letter is never taken from every app on the Mac")
         suite.expect(CommandBarRowShortcuts.decode(CommandBarRowShortcuts.encode(bound)) == bound,
                "the bindings survive a round trip through storage")
+        suite.expect(CommandBarRowShortcuts.hidesAppInFront(isFrontmost: true, isHidden: false,
+                                                            ownsFrontWindow: true),
+               "an app in front with its window in front hides on its own shortcut")
+        suite.expect(!CommandBarRowShortcuts.hidesAppInFront(isFrontmost: true, isHidden: false,
+                                                             ownsFrontWindow: false),
+               "an app in front without the front window comes forward instead of hiding")
+        suite.expect(!CommandBarRowShortcuts.hidesAppInFront(isFrontmost: false, isHidden: false,
+                                                             ownsFrontWindow: true),
+               "an app behind another one comes forward")
+        suite.expect(!CommandBarRowShortcuts.hidesAppInFront(isFrontmost: true, isHidden: true,
+                                                             ownsFrontWindow: true),
+               "a hidden app comes back")
+        var windowListRead = false
+        suite.expect(!CommandBarRowShortcuts.hidesAppInFront(isFrontmost: false, isHidden: false,
+                                                             ownsFrontWindow: {
+                                                                 windowListRead = true
+                                                                 return true
+                                                             }()) && !windowListRead,
+               "bringing an app forward never reads the window list")
+        // The window server lists windows front to back. The menu bar, the
+        // Dock and floating panels sit above every app's windows on higher
+        // layers, so only the first normal window says whose window is in
+        // front.
+        func listedWindow(pid: Int32, layer: Int, alpha: Double = 1) -> [String: Any] {
+            [kCGWindowLayer as String: NSNumber(value: layer),
+             kCGWindowAlpha as String: NSNumber(value: alpha),
+             kCGWindowOwnerPID as String: NSNumber(value: pid)]
+        }
+        let finderPID: Int32 = 1001
+        let menuBarAndDock = [listedWindow(pid: 90, layer: 25), listedWindow(pid: 91, layer: 20)]
+        suite.expect(WindowServerSupport.frontWindowOwner(
+                    in: menuBarAndDock + [listedWindow(pid: finderPID, layer: 0),
+                                          listedWindow(pid: 1002, layer: 0)]) == finderPID,
+               "the window in front is the first normal one, past the menu bar and the Dock")
+        let buriedOwner = WindowServerSupport.frontWindowOwner(
+            in: menuBarAndDock + [listedWindow(pid: 1002, layer: 0), listedWindow(pid: finderPID, layer: 0)])
+        suite.expect(buriedOwner == 1002
+                && !CommandBarRowShortcuts.hidesAppInFront(isFrontmost: true, isHidden: false,
+                                                            ownsFrontWindow: buriedOwner == finderPID),
+               "an app made active under another app's windows comes forward instead of hiding them")
+        suite.expect(WindowServerSupport.frontWindowOwner(in: menuBarAndDock) == nil,
+               "an app showing only the desktop owns no front window")
+        suite.expect(WindowServerSupport.frontWindowOwner(
+                    in: [listedWindow(pid: 1002, layer: 0, alpha: 0),
+                         listedWindow(pid: finderPID, layer: 0)]) == finderPID,
+               "a fully transparent window is in front of nothing")
+        let runRowCode = commandBarServiceSource
+            .components(separatedBy: "private func runRow(withStableKey").dropFirst().first?
+            .components(separatedBy: "private var storedHiddenKeys").first ?? ""
+        suite.expect(runRowCode.contains("!isVisible, let app = installedApp(for: entry)")
+                && runRowCode.contains("CommandBarRowShortcuts.hidesAppInFront(")
+                && runRowCode.contains("running.hide() {"),
+               "only a closed bar hides an app row, through the shared rule, and a refused hide opens it")
+        suite.expect(runRowCode.contains(
+                    "NSWorkspace.shared.frontmostApplication?.processIdentifier == running.processIdentifier")
+                && runRowCode.contains("ownsFrontWindow: WindowServerSupport.frontWindowOwner(")
+                && runRowCode.contains("in: WindowServerSupport.onScreenWindowInfo()) == running.processIdentifier"),
+               "an app shortcut hides only the app in front whose window is the one in front")
 
         // An app the uninstaller removed frees its keys for another app.
         suite.expect(CommandBarRowShortcuts.keyFreed(
