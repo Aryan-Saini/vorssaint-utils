@@ -10,6 +10,7 @@ All notable changes to this project are documented here. The format follows
 Dynamic Island opens downloaded files directly, with fixes for Safari downloads, keyboard focus, pasting, brightness keys, Dock previews and Wine audio routing.
 
 ### Dynamic Island
+- With nothing playing, the music page and the Controls card show the playback buttons, and they and the cover open your music app. Choose it in Settings → Dynamic Island → Content → Music → Open when nothing is playing; Automatic opens the music app that played last, then Spotify or Apple Music. Opening it does not start playback.
 - Clicking a completed file's name or icon in Downloads opens it in its default app. The Finder and Shelf buttons remain available.
 - Vorssaint screenshots show the island as it looked when the capture started, like macOS screenshots. Its capture controls and the capture just taken stay out. Settings → Dynamic Island → Behavior → Privacy → Show in screenshots and videos.
 
