@@ -892,6 +892,15 @@ enum AppManagementFeatureTests {
         suite.expect(CleanerSupport.bundleIDCandidate(fromEntryName: "com.vendor.editor.prefPane")
                 == "com.vendor.editor",
                "preference panes map to their owning bundle identifier")
+        suite.expect(CleanerSupport.bundleIDCandidate(fromEntryName: "im.riot.app.plist") == "im.riot.app"
+               && CleanerSupport.bundleIDCandidate(fromEntryName: "com.vendor.Service.plist") == "com.vendor.Service"
+               && CleanerSupport.bundleIDCandidate(fromEntryName: "com.vendor.Dictionary.savedState")
+                == "com.vendor.Dictionary"
+               && CleanerSupport.bundleIDCandidate(fromEntryName: "io.app.plist") == "io.app",
+               "only the entry's own extension is removed, not an identifier component spelled like one")
+        suite.expect(CleanerSupport.bundleIDCandidate(fromEntryName: "com.vendor.editor.app") == "com.vendor.editor"
+               && CleanerSupport.bundleIDCandidate(fromEntryName: "com.vendor.editor.PLIST") == "com.vendor.editor",
+               "a single payload extension still unwraps to its owner in any letter case")
         suite.expect(CleanerSupport.bundleIDCandidate(fromEntryName: "app-0.0.409") == nil
                && CleanerSupport.bundleIDCandidate(fromEntryName: "0.0.409") == nil
                && CleanerSupport.bundleIDCandidate(fromEntryName: "1.57.0") == nil
