@@ -7,20 +7,27 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Summary
-Dynamic Island opens downloaded files directly, with fixes for Safari downloads, keyboard focus, pasting, brightness keys, Dock previews and Wine audio routing.
+Clipboard history returns to a resizable list, Dynamic Island opens music apps and appears in screenshots, and Command Bar keeps learned search choices after restart. Fixes cover Watch readings, app cleanup, keyboard input and audio routing.
 
 ### Dynamic Island
-- With nothing playing, the music page and the Controls card show the playback buttons, and they and the cover open your music app. Choose it in Settings → Dynamic Island → Content → Music → Open when nothing is playing; Automatic opens the music app that played last, then Spotify or Apple Music. Opening it does not start playback.
 - Clicking a completed file's name or icon in Downloads opens it in its default app. The Finder and Shelf buttons remain available.
-- Vorssaint screenshots show the island as it looked when the capture started, like macOS screenshots. Its capture controls and the capture just taken stay out. Settings → Dynamic Island → Behavior → Privacy → Show in screenshots and videos.
+- With Freeze screen on, screenshots include the island as it looked when capture started, following its visibility preference. Capture controls and previews stay out. Settings → Dynamic Island → Behavior → Privacy → Show in screenshots and videos.
+- With nothing playing, the music page and Controls card open your chosen music app from the cover or playback buttons. Automatic uses the app that played last, then Spotify or Apple Music. Opening it does not start playback. Settings → Dynamic Island → Content → Music → Open when nothing is playing.
 
 ### Changed
 - Clipboard history opens as a list in a resizable window again. The shelf of cards stays available. Settings → Clipboard → History layout.
+- Command Bar remembers which apps and emoji you choose for a search after restarting. Forget learned ranking clears these choices, which stay out of settings backups.
 
 ### Fixed
 - The Settings sidebar can be hidden and shown again from the toolbar or with Control-Command-S, also in full screen.
 - Safari downloads show progress and completion notices, including quick downloads.
 - The Command Bar requests keyboard focus again when it appears after dropping out of the island.
+- The Command Bar calculator answers expressions such as 100 - 20 - 30 and 8 / 2 / 2, while leaving dates and times alone.
+- Watch reads percentages above 999% and preserves negative signs, so its display and target rules use the complete value.
+- Dynamic Island can show tracks from mpv launched in Terminal when it reports playback to macOS.
+- Cleaner no longer offers an installed app's preferences as leftovers when its identifier ends in words such as app or service.
+- Cleaner and Uninstaller no longer mistake unrelated apps for protected shared components because their identifiers start with similar names.
+- Uninstalling the last copy of an app clears its remaining Command Bar shortcuts and preferences, including aliases, pins and hidden state.
 - Paste as plain text preserves images, videos and files and pastes them normally, including when its shortcut is Command-V.
 - Brightness keys keep their press and release together when displays reconnect, the pointer changes displays or brightness feedback changes.
 - The menu bar panel closes faster and opens on the next click, instead of ignoring clicks for almost a second after closing.
@@ -29,7 +36,7 @@ Dynamic Island opens downloaded files directly, with fixes for Safari downloads,
 - Window switcher skips the synthetic mouse press when activating recognized Wine processes, avoiding an unmatched button press in games.
 
 ### Contributors
-Thanks to @Harshul23 and @yasinozmeen. Feedback: alexandrejs, Barbel Design, Brain, Bureka, Emirhan and Gabriel.
+Thanks to @bmrtfm, @Harshul23, @JeanBaeez, @MaximilianMauroner, @Narangor, @oskarsss and @yasinozmeen. Feedback: alexandrejs, Barbel Design, Brain, Bureka, Emirhan and Gabriel.
 
 ## [3.4.1-beta.3] - 2026-10-08
 
