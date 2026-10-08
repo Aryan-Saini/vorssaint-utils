@@ -26,6 +26,9 @@ Dynamic Island adds more audio and music controls while using less GPU and batte
 - AI Agents stops counting a Claude Code turn once the Mac has been offline for about 20 seconds, unless a shell command is still running.
 - Opening lyrics or Up next no longer changes the size of the player above them.
 - The companion can hide in the island when nothing is going on and come out only to visit and react. Settings → Dynamic Island → Companion → Hide when idle.
+- In the Layout editor, the button of a section turned off in Content now looks dimmed, since the island leaves it out until the section is back on.
+- Options that need an uninstalled feature, like Lyrics, Gestures or Command Bar in the island, now read off and grayed, with a button to Features.
+- At rest keeps a choice that can't show just now, dimmed, with a link to what brings it back.
 
 ### Added
 - The screenshot editor's Pixelate tool is now Blur, and it can pixelate, blur or erase a whole area or only the text inside it.
@@ -60,7 +63,7 @@ Dynamic Island adds more audio and music controls while using less GPU and batte
 - In the Volume mixer, an app set below or above 100% no longer turns much quieter on outputs with four to eight channels, like a TV over HDMI or an audio interface.
 
 ### Contributors
-Thanks to @AB-boi, @Acronyxxx, @adam8833, @Babelfisch, @dc0dr, @djc041006-bot, @emilianorobles, @georgebnov, @gorillasuti, @gxlactuss, @iamprasad88, @JeanBaeez, @luantedesco, @massisenergy, @mgailius, @mugurc, @mynameisluke, @Narangor, @nik2k-7, @niukanen1, @nkudrin713, @odeioabacate, @oskarsss, @PathGao, @Polovinkin, @priyanshuvishnoi, @samanyudas, @samueltpoj, @sarat03, @suhrudsh, @ThelloD, @velit, @wuast94, @ywu73 and @zecarreira. Feedback: Brain and Martimm500.
+Thanks to @AB-boi, @Acronyxxx, @adam8833, @Babelfisch, @dc0dr, @djc041006-bot, @emilianorobles, @georgebnov, @gorillasuti, @gxlactuss, @iamprasad88, @JeanBaeez, @luantedesco, @massisenergy, @mgailius, @mugurc, @mynameisluke, @Narangor, @nik2k-7, @niukanen1, @nkudrin713, @odeioabacate, @oskarsss, @PathGao, @Polovinkin, @priyanshuvishnoi, @samanyudas, @samueltpoj, @sarat03, @suhrudsh, @ThelloD, @velit, @wuast94, @ywu73 and @zecarreira. Feedback: Barbel Design, Brain and Martimm500.
 
 ## [3.4.1-beta.2] - 2026-10-06
 
