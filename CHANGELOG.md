@@ -7,7 +7,7 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Summary
-Dynamic Island adds more audio and music controls while using less GPU and battery. Window layout gains configurable snap areas, and Clipboard history presents copied items as a shelf of cards.
+Dynamic Island adds audio controls, music shortcuts and battery warnings while using less GPU and power. Window layout gains configurable snap areas, Clipboard history presents copied items as a shelf of cards, and screenshots can go straight to the Shelf.
 
 ### Dynamic Island
 - Tools uses the quick panel's wand icon, so it is easier to tell apart from the sections button.
@@ -26,10 +26,12 @@ Dynamic Island adds more audio and music controls while using less GPU and batte
 - AI Agents stops counting a Claude Code turn once the Mac has been offline for about 20 seconds, unless a shell command is still running.
 - Opening lyrics or Up next no longer changes the size of the player above them.
 - The companion can hide in the island when nothing is going on and come out only to visit and react. Settings → Dynamic Island → Companion → Hide when idle.
-- Resting the pointer on the song's cover in the closed island shows its name, and the music bars become a play and pause button.
+- Hovering over the cover in the closed island shows the song and artist. Hovering over the music bars reveals a play and pause button.
 - In the Layout editor, the button of a section turned off in Content now looks dimmed, since the island leaves it out until the section is back on.
 - Options that need an uninstalled feature, like Lyrics, Gestures or Command Bar in the island, now read off and grayed, with a button to Features.
 - At rest keeps a choice that can't show just now, dimmed, with a link to what brings it back.
+- Hide gap below notch closes the thin strip of wallpaper beneath the island and is on by default. Settings → Dynamic Island → Layout → Notch fit.
+- The resting battery icon follows the charge and shows when the Mac is plugged in. It can turn red when low, warn in amber first, and use the same colors in the menu bar. Settings → Dynamic Island → Activity → At rest → Battery.
 
 ### Added
 - The screenshot editor's Pixelate tool is now Blur, and it can pixelate, blur or erase a whole area or only the text inside it.
@@ -47,6 +49,8 @@ Dynamic Island adds more audio and music controls while using less GPU and batte
 - Pressing an app's Command Bar shortcut while its window is in front hides the app, and the next press brings it back.
 
 ### Fixed
+- The Clean button stays reachable in compact Cleaner panels in Dynamic Island, the menu and the quick launcher.
+- Screen recordings no longer leave their audio-device monitoring active after they stop.
 - The Empty the Trash confirmation opens above Dynamic Island and accepts mouse and keyboard input.
 - In the Clipboard history window, a new copy no longer moves the highlight, so Return pastes the entry you picked.
 - The screenshot editor no longer misses lines of text in very large and scrolling captures.
@@ -63,10 +67,10 @@ Dynamic Island adds more audio and music controls while using less GPU and batte
 - Removing an app with the Uninstaller frees its Command Bar shortcut for another app.
 - The mute key no longer lowers the volume when the output loses its mute control right after the press.
 - In the Volume mixer, an app set below or above 100% no longer turns much quieter on outputs with four to eight channels, like a TV over HDMI or an audio interface.
-- Screen recordings no longer capture the Mac's sound much quieter on outputs with four to eight channels, like a TV over HDMI or an audio interface.
+- Screen recordings no longer capture the Mac's sound much quieter on outputs with four to eight channels, like a TV over HDMI or an audio interface. The island's live music bars also compensate for the quieter signal.
 
 ### Contributors
-Thanks to @AB-boi, @Acronyxxx, @adam8833, @Babelfisch, @dc0dr, @djc041006-bot, @emilianorobles, @georgebnov, @gorillasuti, @gxlactuss, @iamprasad88, @JeanBaeez, @luantedesco, @massisenergy, @mgailius, @mugurc, @mynameisluke, @Narangor, @nik2k-7, @niukanen1, @nkudrin713, @odeioabacate, @oskarsss, @PathGao, @Polovinkin, @priyanshuvishnoi, @samanyudas, @samueltpoj, @sarat03, @suhrudsh, @ThelloD, @velit, @wuast94, @ywu73 and @zecarreira. Feedback: Barbel Design, Brain and Martimm500.
+Thanks to @AB-boi, @Acronyxxx, @adam8833, @Babelfisch, @dc0dr, @djc041006-bot, @emilianorobles, @georgebnov, @gorillasuti, @gxlactuss, @iamprasad88, @JamesOBrien2, @JeanBaeez, @luantedesco, @massisenergy, @mgailius, @mugurc, @mynameisluke, @naes993, @Narangor, @nik2k-7, @niukanen1, @nkudrin713, @odeioabacate, @oskarsss, @PathGao, @Polovinkin, @priyanshuvishnoi, @samanyudas, @samueltpoj, @sarat03, @suhrudsh, @ThelloD, @velit, @wuast94, @ywu73 and @zecarreira. Feedback: Barbel Design, Brain and Martimm500.
 
 ## [3.4.1-beta.2] - 2026-10-06
 
