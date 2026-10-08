@@ -6,40 +6,23 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
-### Fixed
-- Dynamic Island shows the progress of Safari downloads and a notice when each one finishes, even quick ones.
-
-### Contributors
-Feedback: Brain.
-
 ### Summary
-Files in Dynamic Island's Downloads page can open directly in their default app.
+Dynamic Island opens downloaded files directly, with fixes for Safari downloads, keyboard focus, pasting, brightness keys, Dock previews and Wine audio routing.
 
 ### Dynamic Island
 - Clicking a completed file's name or icon in Downloads opens it in its default app. The Finder and Shelf buttons remain available.
 
-### Dynamic Island
-- The Command Bar that drops out of the island takes the keyboard again once it shows, so you can type without clicking the field first.
+### Fixed
+- Safari downloads show progress and completion notices, including quick downloads.
+- The Command Bar requests keyboard focus again when it appears after dropping out of the island.
+- Paste as plain text preserves images, videos and files and pastes them normally, including when its shortcut is Command-V.
+- Brightness keys keep their press and release together when displays reconnect, the pointer changes displays or brightness feedback changes.
+- Hovering over Dock previews no longer recenters each window while scrolling. The previous and next buttons still reveal the selected window.
+- Explicit app output choices remain enforced at 100%, including when the chosen device is the system default. Changing the output for all apps also routes processes that keep using their previous device.
+- Window switcher skips the synthetic mouse press when activating recognized Wine processes, avoiding an unmatched button press in games.
 
 ### Contributors
-Feedback: Brain.
-
-### Summary
-Dock previews are easier to scroll and select.
-
-### Fixed
-- Dock previews no longer jump to center each window that passes under the pointer while scrolling. Thanks to Emirhan for the report.
-
-### Fixed
-- Paste as plain text keeps images, videos and files intact and pastes them normally, including when its shortcut is Command-V.
-- Brightness keys keep their press and release together when displays reconnect, the pointer changes displays or brightness feedback changes, so macOS does not lose a key release. Thanks to Gabriel for reporting both problems.
-
-### Summary
-Wine games keep the chosen audio output at 100% volume and can be reached with Window switcher without a stuck mouse button.
-
-### Fixed
-- Choosing an app's output works at 100% even when that device is also the system default. Changing the output for all apps also redirects processes that keep playing through their previous device. Thanks to Bureka.
-- Window switcher no longer sends a mouse press when activating Wine games, which could leave the left button held down. Thanks to Bureka.
+Feedback: Brain, Bureka, Emirhan and Gabriel.
 
 ## [3.4.1-beta.3] - 2026-10-08
 
