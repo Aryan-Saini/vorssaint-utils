@@ -17,6 +17,7 @@ Dynamic Island opens downloaded files directly, with fixes for Safari downloads,
 - Clipboard history opens as a list in a resizable window again. The shelf of cards stays available. Settings → Clipboard → History layout.
 
 ### Fixed
+- The Settings sidebar can be hidden and shown again from the toolbar or with Control-Command-S, also in full screen.
 - Safari downloads show progress and completion notices, including quick downloads.
 - The Command Bar requests keyboard focus again when it appears after dropping out of the island.
 - Paste as plain text preserves images, videos and files and pastes them normally, including when its shortcut is Command-V.
