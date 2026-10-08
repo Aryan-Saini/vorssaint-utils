@@ -561,6 +561,7 @@ if (( TEST )); then
     if (( ${#TEST_ARGS} == 0 )); then
         ./Tests/PreferenceCleanupTests.sh || test_status=1
         ./Tests/UninstallSpacesTests.sh || test_status=1
+        ./Tests/DeveloperInstallIsolationTests.sh || test_status=1
     fi
     discard_test_preferences || test_status=1
     exit $test_status
@@ -876,16 +877,18 @@ fi
 if (( INSTALL )); then
     echo "▸ Installing into /Applications…"
     stop_process "$EXECUTABLE"
-    # Remove the pre-rename apps so two menu bar items never coexist. Same bundle
-    # id, so macOS keeps the granted permissions for the new bundle.
-    for legacy in "Vorss:Vorss" "Vorssaint Utils:VorssaintUtils"; do
-        name="${legacy%%:*}"; proc="${legacy##*:}"
-        if [[ -d "/Applications/$name.app" ]]; then
-            stop_process "$proc"
-            rm -rf "/Applications/$name.app"
-            echo "  (legacy $name.app removed)"
-        fi
-    done
+    # Only an official install replaces the pre-rename official apps. The
+    # Developer variant must coexist with them just as it does with Vorssaint.
+    if (( ! DEV )); then
+        for legacy in "Vorss:Vorss" "Vorssaint Utils:VorssaintUtils"; do
+            name="${legacy%%:*}"; proc="${legacy##*:}"
+            if [[ -d "/Applications/$name.app" ]]; then
+                stop_process "$proc"
+                rm -rf "/Applications/$name.app"
+                echo "  (legacy $name.app removed)"
+            fi
+        done
+    fi
     INSTALL_DEST="/Applications/$APP_NAME.app"
     rm -rf "$INSTALL_DEST"
     ditto --noextattr --noqtn "$STAGE" "$INSTALL_DEST"

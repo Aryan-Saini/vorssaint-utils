@@ -341,6 +341,15 @@ enum NotchAgentTests {
                      "a turn waiting on a shell command keeps working offline")
         _ = feed(result("toolu_web"))
         suite.expect(state.runningCommands == ["toolu_sh"], "another tool's result leaves the command running")
+        _ = feed(line(#"{"type":"user","message":{"content":[{"type":"tool_result","tool_use_id":"toolu_web","content":"The pending command is toolu_sh"}]}}"#))
+        suite.expect(state.runningCommands == ["toolu_sh"],
+                     "another tool's output quoting the shell call does not complete it")
+        _ = feed(line(#"{"type":"user","isSidechain":true,"message":{"content":[{"type":"tool_result","tool_use_id":"toolu_sh","content":"ok"}]}}"#))
+        suite.expect(state.runningCommands == ["toolu_sh"],
+                     "a subagent's tool result cannot complete the main turn's command")
+        _ = feed(line(#"{"type":"user","isMeta":true,"message":{"content":[{"type":"tool_result","tool_use_id":"toolu_sh","content":"ok"}]}}"#))
+        suite.expect(state.runningCommands == ["toolu_sh"],
+                     "a meta tool result cannot complete the main turn's command")
         _ = feed(result("toolu_sh"))
         suite.expect(state.runningCommands.isEmpty, "the command's result means the next step needs the network")
         suite.expect(store.closeOfflineTurns(since: late, lasting: grace) && !store.live.contains { $0.provider == .claude },

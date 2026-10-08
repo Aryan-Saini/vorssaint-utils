@@ -47,6 +47,17 @@ def availability_declaration(path, prefix):
 
 def main():
     OUTPUT.mkdir(parents=True, exist_ok=True)
+    write("RecorderSystemAudioTapLifecycle.swift", "import CoreAudio\nimport Foundation\n"
+          + "extension RecorderSystemAudioTapLifecycleTests {\nfinal class Tap: Fixture, @unchecked Sendable {\n"
+          + declaration("Sources/Vorssaint/Services/Recorder/RecorderSystemAudioTap.swift", "    func stop() async")
+          + "}\n}\n")
+    watch = "Sources/Vorssaint/Services/Notch/NotchWatchService.swift"
+    write("NotchWatchChoice.swift", "import AppKit\nimport Foundation\n"
+          + "extension NotchWatchChoiceTests {\nfinal class Service: Fixture {\n"
+          + declaration(watch, "    func chooseArea()")
+          + declaration(watch, "    private func watch(").replace("private func", "@MainActor func", 1)
+          + declaration(watch, "    func stop()")
+          + "}\n}\n")
     write("SwitcherAccessibilitySnapshot.swift", "import ApplicationServices\nimport CoreGraphics\nimport Foundation\n"
           + "extension SwitcherAccessibilitySnapshotTests.Reader {\n"
           + "".join(declaration("Sources/Vorssaint/Services/Switcher/WindowEnumerator.swift", prefix)
@@ -1152,6 +1163,12 @@ def main():
           + "".join(declaration(preview, prefix).replace("private func", "func", 1)
                     for prefix in ["    func shareLink()", "    private func performShare(",
                                    "    private func copySharedLink()", "    private func scheduleAutoDismiss("])
+          + "}\nfinal class Editor: EditorState {\n"
+          + declaration("Sources/Vorssaint/Services/QuickTools/ScreenshotEditorController.swift",
+                        "    func share(duration:")
+          + "}\n@MainActor final class CreationGate: CreationState {\n"
+          + declaration("Sources/Vorssaint/Services/QuickTools/ScreenshotShareService.swift",
+                        "    func createLink(pngData:")
           + "}\n}\n")
     screenshot_service = "Sources/Vorssaint/Services/QuickTools/ScreenshotService.swift"
     write("ScreenshotShortcutCompletion.swift", "import Foundation\n"

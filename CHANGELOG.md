@@ -4,7 +4,7 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [3.4.1-beta.3] - 2026-10-08
 
 ### Summary
 Dynamic Island adds audio controls, music shortcuts and battery warnings while using less GPU and power. Window layout gains configurable snap areas, Clipboard history presents copied items as a shelf of cards, and screenshots can go straight to the Shelf.
@@ -25,7 +25,7 @@ Dynamic Island adds audio controls, music shortcuts and battery warnings while u
 - The calendar month can number its weeks. Settings → Dynamic Island → Content → Calendar → Week numbers.
 - AI Agents stops counting a Claude Code turn once the Mac has been offline for about 20 seconds, unless a shell command is still running.
 - Opening lyrics or Up next no longer changes the size of the player above them.
-- The companion can hide in the island when nothing is going on and come out only to visit and react. Settings → Dynamic Island → Companion → Hide when idle.
+- The companion hides in the island by default when nothing is going on and comes out to visit and react. You can turn this off to keep it beside the camera. Settings → Dynamic Island → Companion → Hide when idle.
 - Hovering over the cover in the closed island shows the song and artist. Hovering over the music bars reveals a play and pause button.
 - In the Layout editor, the button of a section turned off in Content now looks dimmed, since the island leaves it out until the section is back on.
 - Options that need an uninstalled feature, like Lyrics, Gestures or Command Bar in the island, now read off and grayed, with a button to Features.
@@ -49,8 +49,13 @@ Dynamic Island adds audio controls, music shortcuts and battery warnings while u
 - Pressing an app's Command Bar shortcut while its window is in front hides the app, and the next press brings it back.
 
 ### Fixed
+- Editing or discarding a screenshot, or turning off temporary links, prevents a late upload from copying a link to the original capture. Links returned after cancellation are revoked when the server can be reached.
+- Watch stays stopped when an earlier area selection or capture preparation finishes late.
+- Displays checks the connected screens again before turning one off, so unplugging another screen during the operation does not leave the last usable display disabled.
+- AI Agents finishes only the Claude Code command named by a tool result, even when its output mentions other commands.
+- Installing Developer no longer removes older official Vorss or Vorssaint Utils apps.
 - The Clean button stays reachable in compact Cleaner panels in Dynamic Island, the menu and the quick launcher.
-- Screen recordings no longer leave their audio-device monitoring active after they stop.
+- Screen recordings release their audio-device monitoring when they stop, and cancelling startup no longer tries to release the same audio tap twice.
 - The Empty the Trash confirmation opens above Dynamic Island and accepts mouse and keyboard input.
 - In the Clipboard history window, a new copy no longer moves the highlight, so Return pastes the entry you picked.
 - The screenshot editor no longer misses lines of text in very large and scrolling captures.
@@ -58,8 +63,8 @@ Dynamic Island adds audio controls, music shortcuts and battery warnings while u
 - Focus follows mouse no longer flickers toward the window behind an open sheet or dialog, like a file list in System Settings.
 - With Click the Dock icon to hide on, clicking a frontmost app that has no windows opens a new window instead of hiding it.
 - The power reading in the menu bar follows the chosen update interval while the panel is closed.
-- The Command Bar calculator and unit conversions accept both decimal separators where thousands are grouped with a space or an apostrophe, and never read a number that starts with 0 as thousands.
-- Automatic Clean URL leaves a copy alone when it carries more than the link, like several items or a picture.
+- The Command Bar calculator and unit conversions accept both decimal separators where thousands are grouped with a space or an apostrophe, reject misplaced grouping separators and never read a number that starts with 0 as thousands.
+- Automatic Clean URL leaves a copy alone when it carries more than the link, like several items or a picture, or a different link target. It preserves case-sensitive paths and leaves a newer copy untouched if it arrives while the previous one is still being read.
 - The manual Clean URL result follows the link and rules as you edit them, and switching a site off keeps the names you added.
 - Holding an extra mouse button to use the radial menu now highlights and picks slices.
 - The screenshot editor keeps all its controls inside the window for small captures.

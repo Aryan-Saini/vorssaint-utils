@@ -1413,10 +1413,20 @@ final class ScreenshotEditorController: NSObject, NSWindowDelegate {
                 completion(nil)
                 return
             }
+            // Rendering may outlive the editor or the feature. Recheck before
+            // transmitting the capture, not only when the server answers.
+            guard self.window != nil,
+                  AppFeature.screenshot.isAvailable,
+                  UserDefaults.standard.bool(forKey: DefaultsKey.screenshotSharingEnabled) else {
+                completion(nil)
+                return
+            }
             do {
                 let record = try await ScreenshotShareService.shared.createLink(
                     pngData: data, duration: duration)
-                guard self.window != nil else {
+                guard self.window != nil,
+                      AppFeature.screenshot.isAvailable,
+                      UserDefaults.standard.bool(forKey: DefaultsKey.screenshotSharingEnabled) else {
                     try? await ScreenshotShareService.shared.delete(record)
                     completion(nil)
                     return

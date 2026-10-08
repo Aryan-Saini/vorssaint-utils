@@ -500,6 +500,10 @@ final class ScreenshotService: ObservableObject {
     }
 
     private func withholdLatestCapture() {
+        // Opening an editor or discarding also withdraws a shortcut upload
+        // already in flight. Its original must not be delivered after the
+        // person chose to edit or throw it away.
+        invalidateLatestCaptureUploads()
         latestCaptureWithheld = true
         ScreenshotLastCaptureStore.withhold()
     }

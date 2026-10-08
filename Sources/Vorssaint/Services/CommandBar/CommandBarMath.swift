@@ -365,7 +365,8 @@ enum CommandBarMath {
         var raw = written
         if let groupingOnly = separators.groupingOnly, written.contains(groupingOnly) {
             let integerPart = written.prefix { $0 != separators.decimal && $0 != separators.alternate }
-            guard looksLikeGrouping(String(integerPart), separator: groupingOnly) else { return nil }
+            guard looksLikeGrouping(String(integerPart), separator: groupingOnly),
+                  !written.dropFirst(integerPart.count).contains(groupingOnly) else { return nil }
             raw = written.filter { $0 != groupingOnly }
         }
         let decimalSeparator = separators.decimal
