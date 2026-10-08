@@ -166,6 +166,7 @@ struct MetricsTests {
             ("launcher", { QuickLauncherContract.run(suite) }),
             ("dock-autohide", {
                 DockPreviewPositionTests.run(suite)
+                DockPreviewScrollTests.run(suite)
                 DockAutohideHoldTests.run(suite)
                 DockPreviewFrameRestorationTests.run(suite)
             }),
