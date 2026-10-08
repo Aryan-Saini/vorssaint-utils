@@ -160,6 +160,7 @@ struct MetricsTests {
             }),
             ("uninstaller", {
                 UninstallerFlowTests.run(suite)
+                UninstallerCommandBarCleanupTests.run(suite)
                 SelfUninstallContract.run(suite)
             }),
             ("force-quit", { ProcessForceQuitTests.run(suite) }),

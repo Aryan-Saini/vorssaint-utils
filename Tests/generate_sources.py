@@ -430,6 +430,24 @@ def main():
           + "}\n}\nextension UninstallerFlowTests.Finder {\n"
           + declaration("Sources/Vorssaint/Services/Finder/FinderCutPaste.swift", "    static func selectionURLs(")
           + "}\n")
+    write("UninstallerCommandBarCleanup.swift", "import Foundation\n"
+          + "extension UninstallerCommandBarCleanupTests {\n"
+          + declaration(uninstall, "    enum Phase:")
+          + "final class Uninstaller: UninstallerState {\n"
+          + "".join(declaration(uninstall, prefix).replace("private func", "func", 1)
+                    .replace("private static func", "static func", 1) for prefix in [
+                        "    var selectedHomebrewPackage:", "    var isRemovingWithHomebrew:",
+                        "    var isRemoving: Bool",
+                        "    func setInclude(", "    private func finishRemovalAfterHomebrew(",
+                        "    private static func removeCommandBarState("])
+          + "}\nfinal class Service: ServiceState {\nstatic let shared = Service()\n"
+          + "".join(declaration(bar, prefix).replace("private var", "var", 1)
+                    .replace("private func", "func", 1) for prefix in [
+                        "    var rowShortcuts:", "    private var storedAliases:",
+                        "    private var storedPins:", "    private var storedHiddenKeys:",
+                        "    private func syncRowHotkeys(", "    func hasStoredApplicationState(",
+                        "    func removeApplicationState("])
+          + "}\n}\n")
     dock = "Sources/Vorssaint/Services/DockPreview/DockPreviewService.swift"
     write("DockPreviewScroll.swift", "import AppKit\nimport SwiftUI\n"
           + "extension DockPreviewScrollTests {\n"
