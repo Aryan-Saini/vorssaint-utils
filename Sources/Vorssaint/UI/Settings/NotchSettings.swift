@@ -68,6 +68,7 @@ struct NotchSettings: View {
     @AppStorage(DefaultsKey.notchLockSounds) private var lockSounds = false
     @AppStorage(DefaultsKey.notchSize) private var size = NotchSize.spacious.rawValue
     @AppStorage(DefaultsKey.notchOutlineEnabled) private var outlineEnabled = false
+    @AppStorage(DefaultsKey.notchHideMenuBarGap) private var hideMenuBarGap = true
     @AppStorage(DefaultsKey.notchCustomWidth) private var customWidth = NotchSize.defaultWidth
     @AppStorage(DefaultsKey.notchCustomHeight) private var customHeight = NotchSize.defaultHeight
     @AppStorage(DefaultsKey.notchCameraFitWidth) private var cameraFitWidth = 0.0
@@ -100,9 +101,21 @@ struct NotchSettings: View {
     private var editor: NotchEditorStrings { FeatureStrings.notchEditor(l10n.language) }
 
     private var configuration: [String] {
-        [String(enabled), String(calendarEnabled), String(calendarCountdown), String(calendarTimeLeft), String(notificationsEnabled), String(dismissNativeNotifications), String(gesturesEnabled), String(lyricsEnabled), String(lyricsOnline), String(queueEnabled), String(liveEqualizer), String(showPlayingMusic), String(includeOtherPlayers), idle, hiddenControls, controlOrder, size,
-         String(timerEnabled), String(timerSoundEnabled), String(hideTimerCountdown), String(cameraEnabled), String(accessoriesEnabled), String(outlineEnabled), String(customWidth), String(customHeight), String(cameraFitWidth), String(cameraFitHeight), String(capsuleFitWidth), String(capsuleFitHeight), String(capsuleFitDrop), String(hapticFeedback), String(shelfWindow), String(dragReveal), String(captureControls), String(quickPanel), String(appPanel), String(hoverExpand), String(hideUntilHover), String(hideInFullscreen), String(coversMenus), display, silhouette, String(hover), hidden, order, String(volume),
-         String(brightness), String(keyboardLight), String(microphone), String(battery), String(clipboard), String(clipboardWindow), String(capture), String(trackChange), captureAction, String(showInCaptures), String(returnHome), homeModule, String(opensActivity), String(scratchpad), String(agentsEnabled), String(watchEnabled), String(keepAwakeActivity)]
+        [String(enabled), String(calendarEnabled), String(calendarCountdown), String(calendarTimeLeft),
+         String(notificationsEnabled), String(dismissNativeNotifications), String(gesturesEnabled),
+         String(lyricsEnabled), String(lyricsOnline), String(queueEnabled), String(liveEqualizer),
+         String(showPlayingMusic), String(includeOtherPlayers), idle, hiddenControls, controlOrder, size,
+         String(timerEnabled), String(timerSoundEnabled), String(hideTimerCountdown),
+         String(cameraEnabled), String(accessoriesEnabled), String(outlineEnabled), String(hideMenuBarGap),
+         String(customWidth), String(customHeight), String(cameraFitWidth), String(cameraFitHeight),
+         String(capsuleFitWidth), String(capsuleFitHeight), String(capsuleFitDrop), String(hapticFeedback),
+         String(shelfWindow), String(dragReveal), String(captureControls), String(quickPanel), String(appPanel),
+         String(hoverExpand), String(hideUntilHover), String(hideInFullscreen), String(coversMenus),
+         display, silhouette, String(hover), hidden, order, String(volume), String(brightness), String(keyboardLight),
+         String(microphone), String(battery), String(clipboard), String(clipboardWindow),
+         String(capture), String(trackChange), captureAction, String(showInCaptures),
+         String(returnHome), homeModule, String(opensActivity), String(scratchpad),
+         String(agentsEnabled), String(watchEnabled), String(keepAwakeActivity)]
     }
 
     private var access: Binding<NotchQuickAccessConfiguration> {
@@ -250,6 +263,8 @@ struct NotchSettings: View {
             // Only a physical camera has an outline to match.
             if NotchSupport.hasNotchedDisplay {
                 SettingsCard(title: text.cameraFit) {
+                    switchRow("rectangle.topthird.inset.filled", text.hideMenuBarGap,
+                              caption: text.hideMenuBarGapHint, isOn: $hideMenuBarGap)
                     Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 10) {
                         // Whole points keep the island centred on the camera's pixels.
                         fitSlider(text.width, card: text.cameraFit, value: $cameraFitWidth,
