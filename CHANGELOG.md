@@ -7,7 +7,7 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Summary
-3.4.1 is a large incremental update, closer to a 3.5 than a patch. Dynamic Island now works on every Mac and display, appears on the Lock Screen, gets a companion and new audio, music and calendar tools, and uses much less power. Window layout, screenshots, Clipboard history and Command Bar gain new options, alongside many fixes.
+Dynamic Island now works on Macs and displays without a notch, on every display at once and on the Lock Screen. It adds a companion, Watch for any window, more AI agents, and new music, audio and calendar controls, while using much less battery. Window layout gets configurable snap areas, screenshots can go to the Shelf or a temporary link, and many bugs are fixed.
 
 ### Dynamic Island
 - Floats as a capsule on Macs and displays without a notch, can show on every display at once and appears on the Lock Screen.
