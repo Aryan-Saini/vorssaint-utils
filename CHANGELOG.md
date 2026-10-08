@@ -19,11 +19,12 @@ Clipboard history returns to a resizable list, Dynamic Island opens music apps a
 - Command Bar remembers which apps and emoji you choose for a search after restarting. Forget learned ranking clears these choices, which stay out of settings backups.
 
 ### Fixed
+- Clipboard history and its preview stay within small displays, with batch actions spanning the full window width.
 - The Settings sidebar can be hidden and shown again from the toolbar or with Control-Command-S, also in full screen.
 - Safari downloads show progress and completion notices, including quick downloads.
 - The Command Bar requests keyboard focus again when it appears after dropping out of the island.
 - The Command Bar calculator answers expressions such as 100 - 20 - 30 and 8 / 2 / 2, while leaving dates and times alone.
-- Watch reads percentages above 999% and preserves negative signs, so its display and target rules use the complete value.
+- Watch reads percentages above 999%, including values with spaces between thousands, and preserves negative signs, so its display and target rules use the complete value.
 - Dynamic Island can show tracks from mpv launched in Terminal when it reports playback to macOS.
 - Cleaner no longer offers an installed app's preferences as leftovers when its identifier ends in words such as app or service.
 - Cleaner and Uninstaller no longer mistake unrelated apps for protected shared components because their identifiers start with similar names.

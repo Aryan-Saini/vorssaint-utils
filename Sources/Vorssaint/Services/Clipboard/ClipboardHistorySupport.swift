@@ -42,8 +42,16 @@ enum ClipboardHistoryWindowSizing {
             ? CGFloat(savedHeight) : compactDefault.height
         let requested = NSSize(width: width + (preview ? previewExtra.width : 0),
                                height: height + (preview ? previewExtra.height : 0))
-        return NSSize(width: max(minimum.width, min(requested.width, visibleFrame.width - 32)),
-                      height: max(minimum.height, min(requested.height, visibleFrame.height - 32)))
+        return constrainedSize(NSSize(width: max(minimum.width, requested.width),
+                                      height: max(minimum.height, requested.height)),
+                               visibleFrame: visibleFrame)
+    }
+
+    /// A small display takes precedence over the preferred minimum, both
+    /// when opening the window and when dragging its resize handle.
+    static func constrainedSize(_ size: NSSize, visibleFrame: NSRect) -> NSSize {
+        NSSize(width: min(size.width, max(1, visibleFrame.width - 32)),
+               height: min(size.height, max(1, visibleFrame.height - 32)))
     }
 
     static func savedCompactSize(from contentSize: NSSize, preview: Bool) -> NSSize? {

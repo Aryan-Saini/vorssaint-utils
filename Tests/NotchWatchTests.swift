@@ -66,6 +66,19 @@ enum NotchWatchTests {
             suite.expect(NotchWatchSupport.number(in: text) == expected,
                          "\(text) reads as \(String(describing: expected))")
         }
+        for space in [" ", "\u{00A0}", "\u{202F}"] {
+            for (sign, multiplier) in [("", 1.0), ("+", 1.0), ("-", -1.0), ("−", -1.0)] {
+                let reading = "Change \(sign)1\(space)250,5\(space)%"
+                suite.expect(NotchWatchSupport.number(in: reading, decimalSeparator: ",", groupsWithSpace: true)
+                                == multiplier * 1250.5
+                                && NotchWatchSupport.headline(from: reading) == "\(sign)1250,5%",
+                             "spaced percentages retain every digit and their sign: \(reading)")
+            }
+        }
+        suite.expect(NotchWatchSupport.number(in: "Step 2 50%") == 50
+                        && NotchWatchSupport.number(in: "Step 2\n250%", groupsWithSpace: true) == 250
+                        && NotchWatchSupport.headline(from: "Step 2\n250%") == "250%",
+                     "percentage grouping does not join separate numbers or lines")
         suite.expect(NotchWatchSupport.number(in: "1.000", decimalSeparator: ",") == 1000
                         && NotchWatchSupport.number(in: "12.500", decimalSeparator: ",") == 12500
                         && NotchWatchSupport.number(in: "12,500", decimalSeparator: ",") == 12.5
@@ -94,6 +107,11 @@ enum NotchWatchTests {
                         && climbing.observe(signature: "b", reading: "1.000 de 1.200", at: Date()) == .reached("1.000 de 1.200"),
                      "a window's numbers are read as the Mac's region writes them")
         let france = Locale(identifier: "fr_FR")
+        var percentage = NotchWatchTracker(condition: .reaches, text: "", target: 1000, locale: france)
+        suite.expect(percentage.observe(signature: "a", reading: "900%", at: Date()) == nil
+                        && percentage.observe(signature: "b", reading: "1\u{202F}250%", at: Date())
+                            == .reached("1250%"),
+                     "a percentage crossing one thousand triggers the watch in a space-grouping region")
         var falling = NotchWatchTracker(condition: .reaches, text: "", target: 10, locale: france)
         suite.expect(falling.observe(signature: "a", reading: "Reste 10\u{202F}000 fichiers", at: Date()) == nil
                         && falling.observe(signature: "b", reading: "Reste 999 fichiers", at: Date()) == nil

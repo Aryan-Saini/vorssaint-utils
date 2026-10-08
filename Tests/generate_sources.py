@@ -1782,6 +1782,12 @@ def main():
                     for prefix in ["    private func start(", "    private func read(", "    private func filesChanged("])
           + "}\n}\n")
 
+    write("AgentUsagePolling.swift", "import Foundation\n"
+          + "extension AgentUsagePollingTests {\nfinal class Host: Fixture {\n"
+          + declaration("Sources/Vorssaint/Services/AgentUsage/AgentUsageService.swift",
+                        "    private func syncPolling(").replace("private func", "func", 1)
+          + "}\n}\n")
+
     # Same-file extensions can exercise the private AppKit content view without
     # widening the production interface or presenting an application window.
     hud = "Sources/Vorssaint/UI/QuitProtection/QuitProtectionHUD.swift"

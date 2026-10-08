@@ -703,6 +703,16 @@ enum ClipboardFeatureTests {
             preview: false, savedWidth: .infinity, savedHeight: -1, visibleFrame: desktop)
                 == compactSize,
                "invalid saved dimensions fall back to the original size")
+        let smallScreen = NSRect(x: -800, y: 0, width: 800, height: 600)
+        suite.expect(ClipboardHistoryWindowSizing.contentSize(
+            preview: true, savedWidth: 0, savedHeight: 0, visibleFrame: smallScreen)
+                == NSSize(width: 768, height: 500),
+               "the preview fits a display narrower than its preferred minimum")
+        let tinyScreen = NSRect(x: 0, y: 0, width: 540, height: 320)
+        suite.expect(ClipboardHistoryWindowSizing.contentSize(
+            preview: true, savedWidth: 1000, savedHeight: 900, visibleFrame: tinyScreen)
+                == NSSize(width: 508, height: 288),
+               "neither minimum dimension can push the window outside the visible display")
 
         // MARK: Clipboard history window placement
 
@@ -745,7 +755,9 @@ enum ClipboardFeatureTests {
         placement.position(placementPanel)
         suite.expect(placementPanel.frame.size == NSSize(width: 700, height: 500),
                "the shelf leaves the list's chosen size alone")
-        let sizeLimit = ClipboardPanelSizeLimit { placement.panelMinimumContentSize() }
+        var resizeScreen = placementScreen
+        let sizeLimit = ClipboardPanelSizeLimit(minimumContentSize: { placement.panelMinimumContentSize() },
+                                               visibleFrame: { _ in resizeScreen })
         suite.expect(sizeLimit.windowWillResize(placementPanel, to: NSSize(width: 300, height: 200))
                         == NSSize(width: 560, height: 300),
                "resizing the list stops at its minimum")
@@ -753,6 +765,12 @@ enum ClipboardFeatureTests {
         suite.expect(sizeLimit.windowWillResize(placementPanel, to: NSSize(width: 300, height: 200))
                         == NSSize(width: 840, height: 380),
                "with the preview open, resizing the list stops where the preview still fits")
+        resizeScreen = smallScreen
+        suite.expect(sizeLimit.windowWillResize(placementPanel, to: NSSize(width: 300, height: 200))
+                        == NSSize(width: 768, height: 380)
+                        && sizeLimit.windowWillResize(placementPanel, to: NSSize(width: 1000, height: 900))
+                            == NSSize(width: 768, height: 568),
+               "dragging cannot restore an offscreen minimum or enlarge the list beyond the display")
         placement.quickLayout = .cards
         suite.expect(sizeLimit.windowWillResize(placementPanel, to: NSSize(width: 300, height: 200))
                         == NSSize(width: 300, height: 200),

@@ -665,9 +665,9 @@ enum FeatureCatalogTests {
                 == Array(AppFeature.features(in: .dynamicIsland).dropFirst()),
                "the Dynamic Island's extensions are every other feature of its section")
         suite.expect(AppFeature.notch.initialInstallGroup
-                        == AppFeature.features(in: .dynamicIsland).filter { $0 != .notchMascot }
+                        == AppFeature.features(in: .dynamicIsland).filter { $0 != .notchMascot && $0 != .notchAgents }
                      && AppFeature.mixer.initialInstallGroup == [.mixer],
-                     "choosing the island for the first time includes its extensions without changing other features")
+                     "choosing the island keeps Agents and the companion as separate installs")
         suite.expect(AppFeature.dynamicIslandExtensions.contains(.notchMascot)
                         && !AppFeature.notch.initialInstallGroup.contains(.notchMascot)
                         && AppFeature.notchMascot.permissions.isEmpty

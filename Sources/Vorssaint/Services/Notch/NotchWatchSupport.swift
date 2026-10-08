@@ -181,8 +181,8 @@ enum NotchWatchSupport {
             .filter { !$0.isEmpty }
         guard let first = lines.first else { return "" }
         let joined = lines.joined(separator: " ")
-        if let percent = firstMatch(percentPattern, in: joined) {
-            return percent.replacingOccurrences(of: " ", with: "")
+        if let percent = firstMatch(percentPattern, in: text) {
+            return percent.components(separatedBy: .whitespaces).joined()
         }
         if first.count <= headlineLength { return first }
         if let clock = firstMatch(clockPattern, in: joined) { return clock }
@@ -213,9 +213,11 @@ enum NotchWatchSupport {
     /// `groupsWithSpace` also reads 10 000 as one number, as regions that
     /// group thousands with a space write it.
     static func number(in text: String, decimalSeparator: String = ".", groupsWithSpace: Bool = false) -> Double? {
-        let source = firstMatch(percentPattern, in: text) ?? text
+        if let percent = firstMatch(percentPattern, in: text) {
+            return parse(String(percent.dropLast()), decimalSeparator: decimalSeparator)
+        }
         let pattern = groupsWithSpace ? spacedNumberPattern + "|" + numberPattern : numberPattern
-        guard let raw = firstMatch(pattern, in: source) else { return nil }
+        guard let raw = firstMatch(pattern, in: text) else { return nil }
         return parse(raw, decimalSeparator: decimalSeparator)
     }
 
@@ -357,9 +359,9 @@ enum NotchWatchSupport {
         return (window.id, inside.offsetBy(dx: -window.bounds.minX, dy: -window.bounds.minY))
     }
 
-    // The whole number before the sign, as numberPattern reads one: three
-    // digits at most cut 1250% down to 250%, and a typeset minus was dropped.
-    private static let percentPattern = #"[-+−]?\d(?:[\d.,]*\d)?\s?%"#
+    // Keep the whole percentage, including spaced thousands and its sign.
+    // Matching only the last group turns −1 250% into a positive 250%.
+    private static let percentPattern = "(?:" + spacedNumberPattern + "|" + numberPattern + #")\s?%"#
     private static let clockPattern = #"\b\d{1,2}:\d{2}(?::\d{2})?\b"#
     private static let amountPattern = #"[-+]?\d[\d.,]*(?:\s?[A-Za-z]{1,3}\b)?"#
     private static let numberPattern = #"[-+−]?\d[\d.,]*\d|[-+−]?\d"#

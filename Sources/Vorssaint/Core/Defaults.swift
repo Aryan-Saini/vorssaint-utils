@@ -794,6 +794,7 @@ enum DefaultsKey {
     static let notchPreferredPlayer = "notchPreferredPlayer"
     static let notchDefaultProfileInitialized = "notchDefaultProfileInitialized" // local migration marker; never backed up
     static let notchInitialExtensionsInstalled = "notchInitialExtensionsInstalled" // local first-install marker; never backed up
+    static let notchAgentsOptInMigrated = "notchAgentsOptInMigrated" // local migration marker; never backed up
     static let notchIdleContent = "notchIdleContent"
     static let notchHiddenControls = "notchHiddenControls"
     // Travels with the controls so old backups migrate and later choices survive.
@@ -1431,7 +1432,7 @@ enum Defaults {
         DefaultsKey.notchCalendarTimeLeft: false,
         DefaultsKey.notchCalendarWeekNumbers: false,
         DefaultsKey.notchCalendarExcluded: [String](),
-        DefaultsKey.notchAgentsEnabled: true,
+        DefaultsKey.notchAgentsEnabled: false,
         DefaultsKey.notchAgentsClaude: true,
         DefaultsKey.notchAgentsCodex: true,
         DefaultsKey.notchAgentsOpenCode: true,
@@ -1931,6 +1932,7 @@ enum Defaults {
 
     static func register() {
         let defaults = UserDefaults.standard
+        migrateNotchAgentsOptIn(in: defaults)
         migrateExistingNotchDefaults(in: defaults)
         migrateLiquidGlassIsland(in: defaults)
         migrateFanControlVisibility(in: defaults)
@@ -1958,6 +1960,21 @@ enum Defaults {
         recheckBrightnessDDCWriteOnlyPaths(in: defaults)
         hideScratchpadControlOnce(in: defaults)
         hideKeyboardLightControlOnce(in: defaults)
+    }
+
+    /// Keep the implicit on choice of an existing island profile. A new
+    /// profile leaves the key unsaved so explicitly installing Agents can
+    /// enable it; the marker prevents a later launch from changing that choice.
+    static func migrateNotchAgentsOptIn(in defaults: UserDefaults,
+                                       domainName: String? = Bundle.main.bundleIdentifier) {
+        guard let domainName else { return }
+        let saved = defaults.persistentDomain(forName: domainName) ?? [:]
+        guard saved[DefaultsKey.notchAgentsOptInMigrated] == nil else { return }
+        if saved[DefaultsKey.notchDefaultProfileInitialized] as? Bool == true,
+           saved[DefaultsKey.notchAgentsEnabled] == nil {
+            defaults.set(true, forKey: DefaultsKey.notchAgentsEnabled)
+        }
+        defaults.set(true, forKey: DefaultsKey.notchAgentsOptInMigrated)
     }
 
     /// Existing users keep the island's previous glass choice. The island
@@ -1988,7 +2005,8 @@ enum Defaults {
         }
         let automaticKeys: Set<String> = [DefaultsKey.notchScratchpadControlHidden,
                                           DefaultsKey.notchKeyboardLightControlHidden,
-                                          DefaultsKey.notchHidesMenuBarIcon]
+                                          DefaultsKey.notchHidesMenuBarIcon,
+                                          DefaultsKey.notchAgentsOptInMigrated]
         let wasConfigured = saved.keys.contains {
             $0.hasPrefix("notch") && !automaticKeys.contains($0)
                 && ($0 != DefaultsKey.notchHiddenControls

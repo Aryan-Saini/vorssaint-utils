@@ -1132,7 +1132,7 @@ enum NotchTests {
                      && firstDefaults[DefaultsKey.notchCoversMenus] as? Bool == true,
                      "gestures, haptics, last page and coverage over menus start selected")
         let enabledByDefault = [DefaultsKey.notchNotificationsEnabled, DefaultsKey.notchCameraEnabled,
-                                DefaultsKey.notchAgentsEnabled, DefaultsKey.notchDownloadsEnabled,
+                                DefaultsKey.notchDownloadsEnabled,
                                 DefaultsKey.notchLyricsEnabled, DefaultsKey.notchQueueEnabled,
                                 DefaultsKey.notchKeyboardLight, DefaultsKey.notchMicrophone,
                                 DefaultsKey.notchAccessoriesEnabled, DefaultsKey.notchClipboard,
@@ -1141,6 +1141,8 @@ enum NotchTests {
                      "installed island sections and activity indicators start enabled")
         suite.expect(firstDefaults[DefaultsKey.notchLiveEqualizer] as? Bool == false,
                      "the live equalizer starts off because it asks for system audio recording")
+        suite.expect(firstDefaults[DefaultsKey.notchAgentsEnabled] as? Bool == false,
+                     "new island setups leave local agent history reading off until chosen")
         suite.expect(firstDefaults[DefaultsKey.notchIncludeOtherPlayers] as? Bool == true,
                      "new island setups follow every player unless limited to music apps")
 
@@ -1617,6 +1619,7 @@ enum NotchTests {
         suite.expect(!NotchSupport.routesClipboardWindow(in: defaults), "hidden clipboard keeps the ordinary history available")
         suite.expect(!NotchSupport.routes(.clipboard, in: defaults), "hidden module cannot leak an activity")
         defaults.set("system,music,music,unknown", forKey: DefaultsKey.notchModuleOrder)
+        defaults.set(true, forKey: DefaultsKey.notchAgentsEnabled)
         suite.expect(NotchSupport.modules(in: defaults) == [.system, .music, .controls, .mixer, .captures, .files, .tools, .calendar, .notifications, .timer, .camera, .downloads, .scratchpad, .agents, .watch],
                "module order ignores unknown ids and duplicates, preserving newly added modules")
         suite.expect(NotchSupport.routesShelf(in: defaults) && NotchSupport.revealsShelfDrag(in: defaults),
