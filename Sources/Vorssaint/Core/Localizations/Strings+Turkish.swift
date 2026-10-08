@@ -896,6 +896,7 @@ extension Strings {
         supportIntroMessage: "Geliştirmeye maddi destek olmak istersen bunu yapabileceğin tek yer Buy Me a Coffee.",
         supportIntroStarButton: "GitHub’da Vorssaint’e yıldız ver",
         supportIntroStarMessage: "Maddi destek asla beklenmez. GitHub’da verilen bir yıldız, daha fazla kişinin Vorssaint’i keşfetmesine yardımcı olur ve geliştirilmesinde gerçek bir fark yaratır.",
+        supportIntroStarHint: "Bağış yapamıyor musunuz? GitHub’da bir yıldız da çok yardımcı olur.",
         supportIntroCoffeeButton: "Buy Me a Coffee ile destek ol",
         supportIntroLaterButton: "Şimdi değil",
         supportIntroDoneButton: "Tamam",
