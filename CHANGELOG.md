@@ -4,7 +4,7 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
-## [3.4.1-beta.4] - 2026-10-08
+## [3.4.1-beta.5] - 2026-10-08
 
 ### Summary
 The resizable Clipboard list is back, alongside improvements to music controls, search, downloads and audio routing.
