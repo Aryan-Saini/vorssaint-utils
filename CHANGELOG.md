@@ -4,37 +4,36 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [3.4.1-beta.4] - 2026-10-08
 
 ### Summary
-Clipboard history returns to a resizable list, Dynamic Island opens music apps and appears in screenshots, and Command Bar keeps learned search choices after restart. Fixes cover Watch readings, app cleanup, keyboard input and audio routing.
+The resizable Clipboard list is back, alongside improvements to music controls, search, downloads and audio routing.
 
-### Dynamic Island
-- Clicking a completed file's name or icon in Downloads opens it in its default app. The Finder and Shelf buttons remain available.
-- With Freeze screen on, screenshots include the island as it looked when capture started, following its visibility preference. Capture controls and previews stay out. Settings → Dynamic Island → Behavior → Privacy → Show in screenshots and videos.
-- With nothing playing, the music page and Controls card open your chosen music app from the cover or playback buttons. Automatic uses the app that played last, then Spotify or Apple Music. Opening it does not start playback. Settings → Dynamic Island → Content → Music → Open when nothing is playing.
+### Highlights
+- Clipboard history opens as a resizable list again, with room for a preview and selection actions on smaller screens. The card layout remains available in Settings → Clipboard → History layout.
+- Command Bar remembers your app and emoji choices after a restart. Use Forget learned ranking in Settings to clear them.
+- When nothing is playing, click the cover or playback controls in Dynamic Island to open your music app. Choose the app in Settings → Dynamic Island → Content → Music. Opening it does not start playback.
 
 ### Changed
-- Clipboard history opens as a list in a resizable window again. The shelf of cards stays available. Settings → Clipboard → History layout.
-- Command Bar remembers which apps and emoji you choose for a search after restarting. Forget learned ranking clears these choices, which stay out of settings backups.
+- AI Agents is a separate choice when installing Dynamic Island. Updates preserve existing settings. Its frequent log checks pause when there are no active sessions or recent logs.
+- Clicking a completed download's name or icon opens it in its default app. Finder and Shelf actions remain available.
+- The Settings sidebar can be hidden and shown from the toolbar or with Control-Command-S, including in full screen.
 
 ### Fixed
-- Clipboard history and its preview stay within small displays, with batch actions spanning the full window width.
-- The Settings sidebar can be hidden and shown again from the toolbar or with Control-Command-S, also in full screen.
+- Screenshots taken with Freeze screen on include Dynamic Island when Show in screenshots and videos is enabled. Capture controls and previews stay out.
 - Safari downloads show progress and completion notices, including quick downloads.
-- The Command Bar requests keyboard focus again when it appears after dropping out of the island.
-- The Command Bar calculator answers expressions such as 100 - 20 - 30 and 8 / 2 / 2, while leaving dates and times alone.
-- Watch reads percentages above 999%, including values with spaces between thousands, and preserves negative signs, so its display and target rules use the complete value.
-- Dynamic Island can show tracks from mpv launched in Terminal when it reports playback to macOS.
-- Cleaner no longer offers an installed app's preferences as leftovers when its identifier ends in words such as app or service.
-- Cleaner and Uninstaller no longer mistake unrelated apps for protected shared components because their identifiers start with similar names.
-- Uninstalling the last copy of an app clears its remaining Command Bar shortcuts and preferences, including aliases, pins and hidden state.
-- Paste as plain text preserves images, videos and files and pastes them normally, including when its shortcut is Command-V.
-- Brightness keys keep their press and release together when displays reconnect, the pointer changes displays or brightness feedback changes.
-- The menu bar panel closes faster and opens on the next click, instead of ignoring clicks for almost a second after closing.
-- Hovering over Dock previews no longer recenters each window while scrolling. The previous and next buttons still reveal the selected window.
-- Explicit app output choices remain enforced at 100%, including when the chosen device is the system default. Changing the output for all apps also routes processes that keep using their previous device.
-- Window switcher skips the synthetic mouse press when activating recognized Wine processes, avoiding an unmatched button press in games.
+- Command Bar takes keyboard focus when its drop animation finishes.
+- The calculator handles expressions such as `100 - 20 - 30` and `8 / 2 / 2` without treating dates or times as calculations.
+- Watch reads the complete percentage, including values above 999%, spaces between thousands and negative signs.
+- Dynamic Island recognizes tracks from mpv launched in Terminal when it reports playback to macOS.
+- Cleaner no longer lists an installed app's preferences as leftovers. Cleaner and Uninstaller also avoid confusing unrelated apps with shared components.
+- Uninstalling the last copy of an app clears its Command Bar shortcuts, aliases, pins and hidden entries.
+- Paste as plain text preserves images, videos and files, including when assigned to Command-V.
+- Brightness keys keep their press and release together when displays reconnect or the pointer changes displays.
+- The menu bar panel opens on the next click after closing, without the delay that could swallow that click.
+- Scrolling through Dock previews no longer jumps back to the hovered window.
+- Per-app audio output choices stay in effect at 100% volume. Changing the output for all apps also reroutes apps that were still using the previous device.
+- Switching to Wine apps no longer sends the extra mouse press that could leave a button stuck in games.
 
 ### Contributors
 Thanks to @bmrtfm, @Harshul23, @JeanBaeez, @MaximilianMauroner, @Narangor, @oskarsss and @yasinozmeen. Feedback: alexandrejs, Barbel Design, Brain, Bureka, Emirhan and Gabriel.
