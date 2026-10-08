@@ -353,6 +353,8 @@ struct NotchMusicIdleTransport: View {
         }
         .buttonStyle(NotchButtonStyle(cornerRadius: height / 2))
         .accessibilityLabel(title)
+        // VoiceOver says what the press does: it opens the app, not a skip.
+        .accessibilityHint(openTitle)
         .help(openTitle)
     }
 }

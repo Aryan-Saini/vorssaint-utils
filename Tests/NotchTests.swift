@@ -2903,6 +2903,9 @@ enum NotchTests {
                && weekNumberView.contains(".accessibilityLabel(NotchCalendarSupport.weekNumberLabel(of: date, text: text))")
                && !weekNumberView.contains(".accessibilityHidden(true)"),
                "both month grids give VoiceOver each row's week number")
+        suite.expect(!monthView.contains("Text(date, format: .dateTime.day())")
+               && monthView.components(separatedBy: "Text(calendar.component(.day, from: date), format: .number)").count == 4,
+               "the month grid, the week strip and the short month show each day's number without 日 or 일")
         let march = NotchCalendarSupport.monthDays(containing: date(2026, 3, 15), calendar: calendar)
         suite.expect(march.contains(date(2026, 3, 8)) && march.contains(date(2026, 3, 9))
                && date(2026, 3, 9).timeIntervalSince(date(2026, 3, 8)) == 23 * 3600,

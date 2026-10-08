@@ -117,15 +117,14 @@ final class AppVolumeMixer: ObservableObject {
     /// process runs, never written to disk.
     private var sessionVolumes: [String: Double] = [:]
     private var sessionRoutes: [String: String] = [:]
-    /// The last successful manual "all apps" choice, kept across relaunches.
-    /// It may repair a process that ignores that default. Hardware and
-    /// priority changes do not create this request.
+    /// A manual "all apps" choice only changes the system default. Kept as a
+    /// request, it moved apps still on another output to the default, which
+    /// also caught apps playing through an output of their own, such as a
+    /// call on a headset, and it outlived the session. The routing that reads
+    /// it stays dormant until it can tell those apps apart; an app that keeps
+    /// its old device can be given an output of its own, which holds at 100%.
     private var universalOutputDeviceUID: String? {
-        get {
-            Defaults.sanitizedAppOutputDeviceUID(
-                UserDefaults.standard.string(forKey: DefaultsKey.mixerUniversalOutputDevice))
-        }
-        set { UserDefaults.standard.set(newValue, forKey: DefaultsKey.mixerUniversalOutputDevice) }
+        nil
     }
     private var lastAudibleVolume: [String: Double] = [:]
     private var listenerInstalled = false
@@ -842,7 +841,6 @@ final class AppVolumeMixer: ObservableObject {
             switchSucceeded: true)
         persistOutputDeviceUIDs(preferences.outputDeviceUIDs)
         sessionRoutes.removeAll()
-        universalOutputDeviceUID = device.uid
         // A second shortcut press can precede the HAL snapshot. Cycle from
         // the successful choice, while the per-app routes await that read.
         currentOutputDeviceUID = device.uid

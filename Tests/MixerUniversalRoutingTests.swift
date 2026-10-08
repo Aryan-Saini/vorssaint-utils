@@ -113,12 +113,10 @@ enum MixerUniversalRoutingContract {
         let generation = mixer.refresh.begin()!
         let token = mixer.builds.begin(wine.id)!
         suite.expect(mixer.setDefaultOutputDeviceUID("airpods"), "the universal output change succeeds")
-        suite.expect(mixer.universalOutputDeviceUID == "airpods"
+        suite.expect(mixer.universalOutputDeviceUID == nil && Preferences.standard.values.isEmpty
                      && mixer.savedRoutes.isEmpty && mixer.sessionRoutes.isEmpty
                      && mixer.volumes == ["Wine Game": 0.7],
-                     "a successful universal choice clears both route stores, preserves gains and records routing intent")
-        suite.expect(Mixer().universalOutputDeviceUID == "airpods",
-                     "relaunching the mixer retains the user's universal output request")
+                     "a successful universal choice clears both route stores and preserves gains, changing only the default")
         suite.expect(mixer.currentOutputDeviceUID == "airpods" && mixer.apps == [wine, native]
                      && mixer.applied.isEmpty && mixer.refreshCount == 1,
                      "existing routes stay live until a fresh HAL snapshot can replace them")
@@ -212,7 +210,6 @@ enum MixerUniversalRoutingContract {
         mixer.savedRoutes = ["Wine Game": "airpods"]
         Mixer.writeStatus = -1
         suite.expect(!mixer.setDefaultOutputDeviceUID("speakers")
-                     && mixer.universalOutputDeviceUID == "airpods"
                      && mixer.savedRoutes == ["Wine Game": "airpods"]
                      && mixer.sessionRoutes[unnamed.id] == "airpods",
                      "a failed universal switch preserves all earlier routing choices")

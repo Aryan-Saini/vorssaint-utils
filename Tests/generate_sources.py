@@ -274,7 +274,8 @@ def main():
           + declaration(clipboard, "    @Published private(set) var entries:")
           + declaration(clipboard, "    func updateText(")
           + "".join(declaration(clipboard, prefix).replace("private ", "", 1) for prefix in [
-              "    func togglePin(", "    func clearRecent(", "    func copy(_ entry:", "    func copy(_ selectedEntries:", "    private func touch(",
+              "    func togglePin(", "    func clearRecent(", "    var recentEntries:", "    var recentEntriesSnapshot:",
+              "    func copy(_ entry:", "    func copy(_ selectedEntries:", "    private func touch(",
               "    private var firstRecentIndex:", "    private func normalizeEntryOrder(",
               "    func filteredEntries(", "    var filteredQuickEntries:", "    var selectedQuickEntry:",
               "    func moveQuickSelection(", "    func removeSelectedQuickEntries(",
@@ -1258,6 +1259,7 @@ def main():
           + "extension ScreenshotAutoShelfTests {\n@MainActor final class Service: State {\n"
           + "".join(declaration(screenshot_service, prefix).replace("private func", "func", 1)
                     for prefix in ["    private func autoShelve(", "    private func unshelve(",
+                                   "    private func editFromPreview(",
                                    "    private func cancelAutoShelf()"])
           + "}\n}\n")
     write("ScreenshotPreviewHover.swift", "import Foundation\n"

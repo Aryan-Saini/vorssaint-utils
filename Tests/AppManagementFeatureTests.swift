@@ -1064,6 +1064,13 @@ enum AppManagementFeatureTests {
                    "BundleProgram": "Contents/MacOS/relative",
                ]) == ["/Applications/Gone.app/Contents/MacOS/agent", "/usr/local/bin/gone-tool"],
                "launch plists yield their absolute executables and skip relative ones")
+        let bareCommand = CleanerSupport.executablePaths(inLaunchPlist: [
+                   "Program": "rsync", "ProgramArguments": ["sh", "-c", "rsync -a ~/a /Volumes/b"],
+               ])
+        suite.expect(bareCommand.isEmpty
+               && !CleanerSupport.launchPlistIsRemovableOrphan(label: "local.backup", executables: bareCommand,
+                                                               executableExists: { _ in false }),
+               "an agent that runs a bare command from launchd's search path is never offered as an orphan")
         suite.expect(CleanerSupport.launchPlistIsRemovableOrphan(label: "com.vendor.editor.launchdaemon",
                                                            executables: ["/Applications/Gone.app/x"],
                                                            executableExists: { _ in false }),

@@ -1629,9 +1629,20 @@ enum ClipboardPreviewContract {
         var pinnedLater = ClipboardHistoryEntry(text: "Pinned while the confirmation was open")
         pinnedLater.pinnedAt = Date()
         service.setEntries([pinnedLater, copiedLater, counted])
-        service.clearRecent([counted.id, pinnedLater.id])
+        service.clearRecent([counted.id: counted.copiedAt, pinnedLater.id: pinnedLater.copiedAt])
         suite.expect(service.entries.map(\.id) == [pinnedLater.id, copiedLater.id],
                      "clearing deletes only the unpinned items the confirmation counted")
+        let recopied = ClipboardHistoryEntry(text: "Counted, then copied again while the confirmation was open",
+                                             copiedAt: Date(timeIntervalSinceNow: -60))
+        let stillCounted = ClipboardHistoryEntry(text: "Counted and left alone")
+        service.setEntries([recopied, stillCounted])
+        let confirmed = service.recentEntriesSnapshot
+        var copiedAgain = recopied
+        copiedAgain.copiedAt = Date()
+        service.setEntries([copiedAgain, stillCounted])
+        service.clearRecent(confirmed)
+        suite.expect(confirmed.count == 2 && service.entries.map(\.id) == [recopied.id],
+                     "an entry copied again while the confirmation is open survives the clear")
 
         var pinnedItem = ClipboardHistoryEntry(text: "Candidate Alpha")
         pinnedItem.pinnedAt = Date()

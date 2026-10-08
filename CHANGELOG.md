@@ -6,6 +6,21 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+- Choosing an output for all apps changes only the system output again, so apps playing through an output of their own, such as a call app on a headset, stay there.
+- Paste as plain text strips formatting again from cells and slides copied with a picture of themselves, as Numbers and Excel copy them.
+- Dynamic Island no longer reappears in Settings after updating when it is not installed.
+- With Add to the shelf automatically on, editing a capture takes the unedited original off the Shelf.
+- The capsule's resting battery follows the charge and turns amber or red when low, as it does beside the camera.
+- Watch no longer joins a number to the percentage after it, such as Step 2 100%.
+- Clear unpinned keeps an entry copied again while it asks.
+- Cleaner removes leftovers of apps with short identifiers such as io.app instead of listing them on every scan, and automatic cleaning keeps login items that run a command such as sh.
+- The screenshot editor stays open when an app that copies selected text sends Command-C as you finish drawing, and holding Return to apply a crop no longer copies and closes it.
+- Dynamic Island's calendar shows whole day numbers in Chinese, Japanese and Korean.
+
+### Contributors
+Thanks to @rebdeg and @1119350264.
+
 ## [3.4.1-beta.5] - 2026-10-08
 
 ### Summary

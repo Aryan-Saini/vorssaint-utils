@@ -71,10 +71,19 @@ enum NotchWatchTests {
                 let reading = "Change \(sign)1\(space)250,5\(space)%"
                 suite.expect(NotchWatchSupport.number(in: reading, decimalSeparator: ",", groupsWithSpace: true)
                                 == multiplier * 1250.5
-                                && NotchWatchSupport.headline(from: reading) == "\(sign)1250,5%",
+                                && NotchWatchSupport.headline(from: reading, groupsWithSpace: true) == "\(sign)1250,5%",
                              "spaced percentages retain every digit and their sign: \(reading)")
             }
         }
+        for (reading, percent) in [("Step 2 100%", 100.0), ("1 of 3 100%", 100), ("Elapsed 02:13 100%", 100),
+                                   ("CPU 2 150%", 150)] {
+            suite.expect(NotchWatchSupport.number(in: reading) == percent
+                            && NotchWatchSupport.headline(from: reading, groupsWithSpace: false) == "\(Int(percent))%",
+                         "a number before a percentage is not joined to it where thousands are not spaced: \(reading)")
+        }
+        suite.expect(NotchWatchSupport.number(in: "Progress 45\n% done") == 45
+                        && NotchWatchSupport.headline(from: "Progress 45\n% done", groupsWithSpace: true) == "Progress 45",
+                     "a percent sign on the next line is not read into the number")
         suite.expect(NotchWatchSupport.number(in: "Step 2 50%") == 50
                         && NotchWatchSupport.number(in: "Step 2\n250%", groupsWithSpace: true) == 250
                         && NotchWatchSupport.headline(from: "Step 2\n250%") == "250%",

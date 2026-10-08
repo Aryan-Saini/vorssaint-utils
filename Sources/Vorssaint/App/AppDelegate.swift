@@ -19,6 +19,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
     /// panel shown after it.
     private var popoverCloseFadeSerial = 0
     private var popoverIsFadingOut = false
+    /// The window being faded, kept for the end of the fade even if the
+    /// popover has let go of it by then.
+    private weak var fadingPopoverWindow: NSWindow?
     private var popoverIsReopening = false
     private var popoverCloseIsAppRequested = false
     /// The last visible geometry and event destination survive AppKit's teardown.
@@ -1219,6 +1222,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
         popoverCloseFadeSerial &+= 1
         let serial = popoverCloseFadeSerial
         popoverIsFadingOut = true
+        fadingPopoverWindow = window
         window.ignoresMouseEvents = true
         NSAnimationContext.runAnimationGroup { context in
             context.duration = 0.1
@@ -1233,14 +1237,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
         guard popoverIsFadingOut else { return }
         popoverIsFadingOut = false
         popoverCloseFadeSerial &+= 1
-        let window = popover.contentViewController?.view.window
+        let window = fadingPopoverWindow ?? popover.contentViewController?.view.window
+        fadingPopoverWindow = nil
         closePopoverWithoutAnimation()
-        // The popover may present from the same window next time.
+        // The popover may present from the same window next time. A direct
+        // set also stops a fade AppKit is still stepping, as when a click
+        // reopens the panel mid-fade; a zero-length animation does not.
         if let window {
-            NSAnimationContext.runAnimationGroup { context in
-                context.duration = 0
-                window.animator().alphaValue = 1
-            }
+            window.alphaValue = 1
             window.ignoresMouseEvents = false
         }
     }

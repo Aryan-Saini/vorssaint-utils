@@ -368,11 +368,12 @@ final class ClipboardHistoryService: ObservableObject {
         return true
     }
 
-    /// Deletes only the unpinned entries the confirmation counted, so a copy
-    /// that lands while it is open survives and the count shown is the count
+    /// Deletes only the unpinned entries the confirmation counted, as they
+    /// were then, so a copy that lands while it is open survives, even one
+    /// that copies a counted entry again, and the count shown is the count
     /// removed.
-    func clearRecent(_ confirmedIDs: Set<UUID>) {
-        entries.removeAll { !$0.isPinned && confirmedIDs.contains($0.id) }
+    func clearRecent(_ confirmed: [UUID: Date]) {
+        entries.removeAll { !$0.isPinned && confirmed[$0.id] == $0.copiedAt }
         pruneQuickBatchSelection()
         save()
     }
@@ -395,6 +396,12 @@ final class ClipboardHistoryService: ObservableObject {
 
     var recentEntries: [ClipboardHistoryEntry] {
         entries.filter { !$0.isPinned }
+    }
+
+    /// What a "Clear unpinned" confirmation counts: each unpinned entry and
+    /// when it was last copied.
+    var recentEntriesSnapshot: [UUID: Date] {
+        Dictionary(recentEntries.map { ($0.id, $0.copiedAt) }, uniquingKeysWith: { first, _ in first })
     }
 
     var filteredQuickEntries: [ClipboardHistoryEntry] {

@@ -1544,6 +1544,31 @@ enum ScreenshotFeatureTests {
                                                      editorWindowNumber: 42,
                                                      editorIsKey: true),
                "screenshot editor ignores events explicitly owned by another window")
+        suite.expect(ScreenshotSupport.editorIgnoresPostedCopy(sourceProcessID: 4242, ownProcessID: 77,
+                                                         now: 100.3, lastPointerActivity: 100),
+               "a Command-C another app posts as a canvas drag ends does not copy and close the editor")
+        suite.expect(!ScreenshotSupport.editorIgnoresPostedCopy(sourceProcessID: 0, ownProcessID: 77,
+                                                          now: 100.1, lastPointerActivity: 100),
+               "a pressed Command-C right after drawing still copies the capture")
+        suite.expect(!ScreenshotSupport.editorIgnoresPostedCopy(sourceProcessID: 4242, ownProcessID: 77,
+                                                          now: 101, lastPointerActivity: 100),
+               "a posted Command-C well after the last stroke still copies, as automation sends it")
+        suite.expect(!ScreenshotSupport.editorIgnoresPostedCopy(sourceProcessID: 4242, ownProcessID: 77,
+                                                          now: 100, lastPointerActivity: -.infinity),
+               "a posted Command-C before any canvas gesture still copies")
+        let editorControllerSource = (try? String(
+            contentsOfFile: "Sources/Vorssaint/Services/QuickTools/ScreenshotEditorController.swift",
+            encoding: .utf8)) ?? ""
+        suite.expect(editorControllerSource.contains("ScreenshotSupport.editorIgnoresPostedCopy(")
+                && editorControllerSource.contains("self.model.notePointerActivity()")
+                && editorControllerSource.contains("NSEvent.removeMonitor(pointerMonitor)"),
+               "the editor's Command-C checks for a posted copy, fed by every press and drag in its window")
+        suite.expect(ScreenshotSupport.editorIgnoresRepeatedOutputKey(keyCode: kVK_Return, command: false, isRepeat: true)
+                && ScreenshotSupport.editorIgnoresRepeatedOutputKey(keyCode: kVK_ANSI_C, command: true, isRepeat: true),
+               "a held Return or Command-C does not copy and close the editor it repeats into")
+        suite.expect(!ScreenshotSupport.editorIgnoresRepeatedOutputKey(keyCode: kVK_Return, command: false, isRepeat: false)
+                && !ScreenshotSupport.editorIgnoresRepeatedOutputKey(keyCode: kVK_ANSI_Z, command: true, isRepeat: true),
+               "a single Return copies, and held undo keeps repeating")
         let previewFrame = ScreenshotSupport.quickPreviewFrame(
             size: CGSize(width: 286, height: 210),
             anchor: CGRect(x: 1100, y: 100, width: 300, height: 300),

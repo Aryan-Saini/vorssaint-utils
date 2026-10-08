@@ -217,6 +217,7 @@ enum MenuPanelRecoveryTests {
         var popoverIsClosing = false
         var popoverCloseFadeSerial = 0
         var popoverIsFadingOut = false
+        weak var fadingPopoverWindow: NSWindow?
         var popoverIsReopening = false
         var metricAnchorSwitchSerial = 0
         var scheduledReanchors = 0

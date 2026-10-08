@@ -4534,6 +4534,16 @@ enum SwitcherModelFeatureTests {
         suite.expect(QuickToolsSupport.openableURL(from: "example.com") == nil,
                "a bare host with no scheme is not opened")
 
+        for fallback in ["", " \n", "https://example.com/a.png", "data:image/png;base64,AAAA",
+                         "blob:https://example.com/1", "IMG_1234.HEIC", "photo.jpeg", "clip.mp4", "scan.pdf"] {
+            suite.expect(QuickToolsSupport.isMediaTextFallback(fallback),
+                         "'\(fallback)' is the text a lone picture or clip carries")
+        }
+        for text in ["Total", "Total:", "1.2.3", "3.14", "e.g.", "Item\tQty\nA\t1", "see https://example.com",
+                     "two words", "U.S.", "example.com", "2.4GHz", "12.5kg", "config.yaml", "john@example.com"] {
+            suite.expect(!QuickToolsSupport.isMediaTextFallback(text),
+                         "'\(text)' is copied text that still pastes plain")
+        }
         // Paste plain delegates only to the universal ⌥⇧⌘V equivalent
         // (shift = 1, option = 2 in the AX modifier mask); anything else in
         // an app's menus is some other edit command and must not be pressed.
