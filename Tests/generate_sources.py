@@ -720,6 +720,21 @@ def main():
               "    private func syncMissionControlMonitoring()", "    private var missionControlCheckInterval:",
               "    private func updateMissionControlTimer()", "    private func refreshMissionControlState("])
           + "}\n}\n")
+    # Exercise the capsule's production music branch with the hover fixture.
+    # Other activity services are unrelated to this sizing contract.
+    capsule_music = declaration(notch, "    private func capsuleStripSize(").replace("    private ", "    ", 1)
+    prefix, separator, cases = capsule_music.partition("        switch activity {\n")
+    music_case, next_case, _ = cases.partition("        case .timer:")
+    if not separator or not next_case or not music_case.startswith("        case .music:\n"):
+        raise ValueError("Expected the music branch first in capsuleStripSize")
+    for line in ["        let download = NotchDownloadService.shared.items.first { $0.active && !$0.completed }\n",
+                 "        let working = Set(AgentUsageService.shared.snapshot.live.map(\\.provider)).count\n"]:
+        if line not in prefix:
+            raise ValueError("Expected the non-music activity readings in capsuleStripSize")
+        prefix = prefix.replace(line, "")
+    capsule_music = (prefix + "        switch activity {\n" + music_case
+                     + '        default: preconditionFailure("Only music is measured by this fixture")\n'
+                     + "        }\n    }\n#sourceLocation()\n")
     write("NotchHover.swift", "import AppKit\nextension NotchHoverTests {\nfinal class Service: State {\n"
           + declaration(notch, "    func show(_ incoming:").replace("NotchSupport.routes(incoming.event)", "true")
             .replace("    func", "    @discardableResult\n    func", 1)
@@ -734,12 +749,21 @@ def main():
               "    private func dismissNotice(", "    private func endDeparture(", "    private var noticeCanPresent:",
               "    private func syncHiddenHoverMonitoring(", "    private func removeHiddenHoverMonitors(",
               "    private func scheduleTrackNotice(", "    private func releaseTrackHold(",
-              "    private func holdEndingTrack("])
+              "    private func holdEndingTrack(", "    func musicStripAnswers(", "    func hoverMusicStrip(",
+              "    private func endMusicStripHover(", "    var musicStripShowsControl:",
+              "    private var musicStripCanToggle:", "    func activateMusicStrip(", "    private func endMusicStripRequest(",
+              "    var musicStripNamesSong:", "    private func fitNamedMusicStrip(", "    private func nameCapsuleSong(",
+              "    private func endMusicStripSong(", "    private func musicStripHolds(",
+              "    func musicStripStandIn("])
           .replace("NotchSupport.routes(notice.event)", "routesNotices")
           .replace("NotchSupport.closeDelay()", "NotchSupport.sanitizedCloseDelay(UserDefaults.standard.closeDelay)")
+          + capsule_music
+          + declaration(notch, "    func toggleMusicStripSong(")
+              .replace("    func toggleMusicStripSong", "    @discardableResult\n    func toggleMusicStripSong", 1)
           + "}\n}\n")
     music_visibility = "".join(declaration(notch, prefix).replace("    private ", "    ", 1) for prefix in [
-        "    private var hiddenUntilHover:", "    var fullscreenCompact:", "    var idleContent:", "    var hasMusicActivity:", "    var compactActivity:",
+        "    private var hiddenUntilHover:", "    var fullscreenCompact:", "    var idleContent:", "    var hasMusicActivity:",
+        "    private func musicStripHolds(", "    var compactActivity:",
         "    var compactActivityGeometry:", "    private func compactGeometry(", "    var compactActivities:",
         "    var compactCompanion:",
         "    var surfaceSize:", "    var surfaceShift:", "    func collapse(",

@@ -26,6 +26,7 @@ Dynamic Island adds more audio and music controls while using less GPU and batte
 - AI Agents stops counting a Claude Code turn once the Mac has been offline for about 20 seconds, unless a shell command is still running.
 - Opening lyrics or Up next no longer changes the size of the player above them.
 - The companion can hide in the island when nothing is going on and come out only to visit and react. Settings → Dynamic Island → Companion → Hide when idle.
+- Resting the pointer on the song's cover in the closed island shows its name, and the music bars become a play and pause button.
 - In the Layout editor, the button of a section turned off in Content now looks dimmed, since the island leaves it out until the section is back on.
 - Options that need an uninstalled feature, like Lyrics, Gestures or Command Bar in the island, now read off and grayed, with a button to Features.
 - At rest keeps a choice that can't show just now, dimmed, with a link to what brings it back.
