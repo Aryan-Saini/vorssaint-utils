@@ -897,7 +897,7 @@ extension Strings {
         supportIntroMessage: "如果你願意在經濟上支援開發，Buy Me a Coffee 是唯一的支援方式。",
         supportIntroStarButton: "在 GitHub 為 Vorssaint 加星",
         supportIntroStarMessage: "我們從不期待經濟支援。在 GitHub 加一顆星能讓更多人發現 Vorssaint，也會實際幫助它持續發展。",
-        supportIntroStarHint: "暫時不方便捐助？在 GitHub 加一顆星也能幫上大忙。",
+        supportIntroStarHint: "在 GitHub 加一顆星，也能幫助更多人發現 Vorssaint，對我們意義重大。",
         supportIntroCoffeeButton: "透過 Buy Me a Coffee 支援",
         supportIntroLaterButton: "稍後再說",
         supportIntroDoneButton: "完成",

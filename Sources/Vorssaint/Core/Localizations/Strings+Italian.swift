@@ -896,7 +896,7 @@ extension Strings {
         supportIntroMessage: "Se vuoi sostenere economicamente lo sviluppo, Buy Me a Coffee è l’unico posto in cui farlo.",
         supportIntroStarButton: "Dai una stella a Vorssaint su GitHub",
         supportIntroStarMessage: "Il sostegno economico non è mai richiesto. Una stella su GitHub aiuta più persone a scoprire Vorssaint e fa davvero la differenza per il suo sviluppo.",
-        supportIntroStarHint: "Non puoi donare? Anche una stella su GitHub aiuta tantissimo.",
+        supportIntroStarHint: "Anche una stella su GitHub aiuta più persone a scoprire Vorssaint e significa molto.",
         supportIntroCoffeeButton: "Sostieni su Buy Me a Coffee",
         supportIntroLaterButton: "Non ora",
         supportIntroDoneButton: "Fatto",
