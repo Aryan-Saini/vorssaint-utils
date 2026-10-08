@@ -1010,13 +1010,14 @@ enum BrightnessUpdatePromptInfo {
 }
 
 enum SupportUpdateIntroInfo {
-    /// The stable release series that gets this invitation. Patch updates share
-    /// one completion marker, including when someone skips the initial release.
-    static let releaseVersion = "3.4.0"
+    /// The stable release that gets this invitation, and the patches after it,
+    /// which share one completion marker. 3.4.1 asks again, including people
+    /// who saw it in 3.4.0, whose marker differs.
+    static let releaseVersion = "3.4.1"
 
     // Older beta onboarding wrote the release version before this screen was
     // available. A distinct completion marker keeps those upgraders eligible.
-    static let seenVersion = "3.4.0-support"
+    static let seenVersion = "3.4.1-support"
 
     static func matchesRelease(_ appVersion: String) -> Bool {
         guard let version = UpdateServiceSupport.SemanticVersion(raw: appVersion),
