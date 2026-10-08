@@ -193,9 +193,8 @@ enum RecorderFeatureTests {
         suite.expect(!SettingsBackupSupport.exportKeys().contains(DefaultsKey.recorderSystemAudioTapVerified)
                 && SettingsBackupSupport.exportKeys().contains(DefaultsKey.recorderSystemAudio),
                "the tap grant this Mac gave stays out of the backup while the sound choice travels")
-        // A listener block handed back for removal is reported removed and
-        // keeps firing (measured 2026-10-07), so the tap listens with a plain
-        // callback and gives back each registration on every way out.
+        // A listener block handed back for removal can keep firing. Plain
+        // callbacks use numeric clients that are forgotten on every way out.
         let systemAudioTapSource = (try? String(
             contentsOfFile: "Sources/Vorssaint/Services/Recorder/RecorderSystemAudioTap.swift",
             encoding: .utf8)) ?? ""
@@ -203,9 +202,24 @@ enum RecorderFeatureTests {
                "the system audio tap source reads back for its shape check")
         suite.expect(!systemAudioTapSource.contains("PropertyListenerBlock"),
                "the system audio tap never listens with a block it cannot remove")
-        suite.expect(systemAudioTapSource.components(separatedBy: "Self.stopListening(deviceListener)").count - 1 == 2
-                && systemAudioTapSource.components(separatedBy: "Self.stopListening(rateListener)").count - 1 == 2,
+        suite.expect(systemAudioTapSource.components(separatedBy: "Self.removeListener(deviceListenerClient, from:").count - 1 == 2
+                && systemAudioTapSource.components(separatedBy: "Self.removeListener(rateListenerClient, from:").count - 1 == 2,
                "the tap gives back its output listener on stop and deinit, and its rate listener with each aggregate and on deinit")
+        // The tap's mixdown keeps a quarter of what plays on an eight channel
+        // output, and the recorder turns its copy of the samples back up.
+        var restored: [Float] = [0.1, -0.2, 0.05, 0.6]
+        var restoreLimiter = BoostLimiter()
+        restored.withUnsafeMutableBufferPointer { samples in
+            RecorderSupport.restoreTapLevel(samples.baseAddress!, count: samples.count, channels: 2,
+                                            gain: 4, limiter: &restoreLimiter,
+                                            release: BoostLimiter.release(sampleRate: 48_000))
+        }
+        suite.expectClose(Double(restored[0]), 0.4, "recorded sound gets back the level the tap's mixdown took")
+        suite.expectClose(Double(restored[1]), -0.8, "the limiter leaves restored sound inside full scale alone")
+        suite.expectClose(Double(restored[3]), Double(BoostLimiter.ceiling),
+                          "a restored peak past full scale is limited instead of clipping the file")
+        suite.expectClose(Double(restored[2] / restored[3]), 0.05 / 0.6,
+                          "both channels of a limited frame come down together")
         var pauseTimeline = RecorderPauseTimeline()
         suite.expect(pauseTimeline.pause(at: 3) && !pauseTimeline.pause(at: 4),
                "a recording enters one pause only once")
