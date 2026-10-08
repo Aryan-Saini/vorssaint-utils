@@ -6,6 +6,12 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+- Dynamic Island shows the progress of Safari downloads and a notice when each one finishes, even quick ones.
+
+### Contributors
+Feedback: Brain.
+
 ### Summary
 Files in Dynamic Island's Downloads page can open directly in their default app.
 
