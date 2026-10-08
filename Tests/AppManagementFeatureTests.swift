@@ -939,6 +939,17 @@ enum AppManagementFeatureTests {
                    CleanerSupport.isProtectedBundleID($0)
                },
                "embedded updaters and crash reporters can never be junk owners")
+        suite.expect(CleanerSupport.isProtectedBundleID("io.sentry.Native")
+               && CleanerSupport.isProtectedBundleID("ORG.SPARKLE-PROJECT.Sparkle")
+               && CleanerSupport.isProtectedBundleID("com.google.Keystone.Agent"),
+               "anything inside a shared infrastructure domain stays protected, in any letter case")
+        suite.expect(!CleanerSupport.isProtectedBundleID("com.segmentfault.reader")
+               && !CleanerSupport.isProtectedBundleID("com.amplitudestudios.Humankind")
+               && !CleanerSupport.isProtectedBundleID("io.sentrybox.Mac")
+               && !CleanerSupport.isProtectedBundleID("org.swiftbar.app")
+               && UninstallerSupport.verifiedBundleID("com.amplitudestudios.Humankind")
+                == "com.amplitudestudios.Humankind",
+               "another vendor whose name merely starts like a shared domain is an ordinary app")
         suite.expect(CleanerSupport.bundleIDCandidate(fromEntryName: "systemgroup.com.apple.icloud.sharedsettings.plist")
                == "com.apple.icloud.sharedsettings",
                "systemgroup wrappers unwrap to the real owner")

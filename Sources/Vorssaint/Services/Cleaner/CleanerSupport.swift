@@ -65,7 +65,9 @@ enum CleanerSupport {
         if lowered == "com.apple" || lowered.hasPrefix("vorss.") {
             return true
         }
-        return sharedInfrastructurePrefixes.contains { lowered.hasPrefix($0) }
+        // A domain ends at a dot: com.segment covers com.segment.analytics,
+        // not the unrelated com.segmentfault.
+        return sharedInfrastructurePrefixes.contains { lowered == $0 || lowered.hasPrefix($0 + ".") }
     }
 
     /// Whether a Library entry name is shaped like a reverse DNS bundle
