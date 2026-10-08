@@ -521,6 +521,11 @@ enum NotchIdleContent: String, CaseIterable {
     case none, battery, music, agents
 }
 
+/// How urgently the charge is shown: amber for the early warning, red when low.
+enum BatteryWarning: Equatable {
+    case none, early, low
+}
+
 /// Resizing can send hover exits and entries without any pointer movement.
 struct NotchHoverState {
     private(set) var suppressed = false
@@ -1617,6 +1622,58 @@ enum NotchSupport {
     /// The closed island may cover the menus instead of giving way to them.
     static func coversMenus(in defaults: UserDefaults = .standard) -> Bool {
         defaults.object(forKey: DefaultsKey.notchCoversMenus) as? Bool ?? true
+    }
+
+    static let defaultLowBatteryThreshold = 10
+    /// Both level sliders share this scale so their knobs line up; red stops
+    /// one short of the top so amber always has room above it.
+    static let batteryLevelScale = 1...100
+    static let lowBatteryThresholdRange = 1...99
+    static let defaultEarlyBatteryThreshold = 20
+    static let earlyBatteryThresholdRange = 2...100
+
+    static func sanitizedLowBatteryThreshold(_ value: Int) -> Int {
+        min(lowBatteryThresholdRange.upperBound, max(lowBatteryThresholdRange.lowerBound, value))
+    }
+
+    static func sanitizedEarlyBatteryThreshold(_ value: Int) -> Int {
+        min(earlyBatteryThresholdRange.upperBound, max(earlyBatteryThresholdRange.lowerBound, value))
+    }
+
+    /// The amber level, kept at least one point above the red one so the
+    /// early warning always comes first.
+    static func earlyBatteryThreshold(_ value: Int, above red: Int) -> Int {
+        max(sanitizedEarlyBatteryThreshold(value), sanitizedLowBatteryThreshold(red) + 1)
+    }
+
+    /// The charge turns red at or below the chosen level once the person asks
+    /// for it, and amber a little earlier when they want a first warning.
+    /// Neither shows while the Mac is plugged in.
+    static func batteryWarning(percent: Int?, externalConnected: Bool, tint: Bool, threshold: Int,
+                               early: Bool = false, earlyThreshold: Int = defaultEarlyBatteryThreshold) -> BatteryWarning {
+        guard tint, !externalConnected, let percent else { return .none }
+        if percent <= sanitizedLowBatteryThreshold(threshold) { return .low }
+        if early, percent <= sanitizedEarlyBatteryThreshold(earlyThreshold) { return .early }
+        return .none
+    }
+
+    static func batteryWarning(percent: Int?, externalConnected: Bool,
+                               in defaults: UserDefaults = .standard) -> BatteryWarning {
+        batteryWarning(percent: percent, externalConnected: externalConnected,
+                       tint: defaults.bool(forKey: DefaultsKey.notchLowBatteryTint),
+                       threshold: defaults.object(forKey: DefaultsKey.notchLowBatteryThreshold) as? Int
+                           ?? defaultLowBatteryThreshold,
+                       early: defaults.bool(forKey: DefaultsKey.notchLowBatteryEarly),
+                       earlyThreshold: defaults.object(forKey: DefaultsKey.notchLowBatteryEarlyThreshold) as? Int
+                           ?? defaultEarlyBatteryThreshold)
+    }
+
+    /// The menu bar's battery reading follows the same warning unless the
+    /// person keeps it to the island.
+    static func menuBarBatteryWarning(percent: Int?, externalConnected: Bool,
+                                      in defaults: UserDefaults = .standard) -> BatteryWarning {
+        guard defaults.object(forKey: DefaultsKey.notchLowBatteryMenuBar) as? Bool ?? true else { return .none }
+        return batteryWarning(percent: percent, externalConnected: externalConnected, in: defaults)
     }
 
     /// The closed island stays out of sight until the pointer reaches it, and

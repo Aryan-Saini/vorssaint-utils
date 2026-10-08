@@ -883,6 +883,46 @@ def main():
           + "}\n")
     metric_view = "Sources/Vorssaint/UI/MenuPanel/MetricDetailView.swift"
     renderer = "Sources/Vorssaint/App/MenuBarRenderer.swift"
+    # Keep the battery branch and its real drawing path intact; unrelated
+    # monitor readings are outside this isolated warning-color contract.
+    battery_segments = declaration(renderer, "    private static func blockSegments(")
+    prefix, switch, cases = battery_segments.partition("            switch metric {\n")
+    _, battery_case, rest = cases.partition("            case .battery, .batteryTemperature:\n")
+    battery_body, next_case, _ = rest.partition("            case .batteryTime:\n")
+    if not switch or not battery_case or not next_case:
+        raise ValueError("Expected the battery branch in blockSegments")
+    for line in ["        let usesBars = appearance == .bars\n",
+                 "        var renderedCPU = false\n", "        var renderedGPU = false\n"]:
+        if line not in prefix:
+            raise ValueError("Expected the unrelated activity state in blockSegments")
+        prefix = prefix.replace(line, "")
+    battery_segments = (prefix + switch + battery_case + battery_body
+                        + "            }\n        }\n        return blockJoined(groups, style: style)\n    }\n#sourceLocation()\n")
+    battery_warning = declaration(renderer, "    private static func batteryWarning(")
+    connection = "externalConnected: power?.externalConnected ?? false)"
+    if connection not in battery_warning:
+        raise ValueError("Expected the battery warning's power connection")
+    battery_warning = battery_warning.replace(connection, connection[:-1] + ", in: ReviewDefaults.current)")
+    spacing = "Sources/Vorssaint/App/MenuBarSpacingSupport.swift"
+    write("MenuBarBatteryWarning.swift", "import AppKit\nextension MenuBarBatteryWarningTests {\n"
+          + declaration("Sources/Vorssaint/Services/SystemMonitor/SystemMonitor.swift", "enum MemoryPressure {")
+          + declaration("Sources/Vorssaint/Services/Metrics/PowerSampler.swift", "struct PowerReading {")
+          + declaration(renderer, "enum MenuBarSegment {")
+          + declaration(renderer, "enum MenuBarBlockStyle {")
+          + "".join(declaration(spacing, prefix).replace("UserDefaults.standard", "ReviewDefaults.current!")
+                    for prefix in ["enum MenuBarMetricSpacing:", "enum MenuBarMetricAppearance:"])
+          + "}\nextension MenuBarBatteryWarningTests.Renderer {\n"
+          + (battery_segments + battery_warning).replace("private static", "static")
+              .replace("UserDefaults.standard", "ReviewDefaults.current!")
+          + "".join(declaration(renderer, prefix).replace("private static", "static")
+                    .replace("UserDefaults.standard", "ReviewDefaults.current!") for prefix in [
+                        "    static func attributed(", "    private static func metricBlockAttachment(",
+                        "    private static func metricBlockImage(", "    private static func batteryBlockAttachment(",
+                        "    private static func batteryBlockImage(", "    private static func blockImageCost(",
+                        "    private static func dynamicTextAttributes(", "    static func nsColor(for warning:",
+                        "    static func nsColor(for pressure:", "    private static func temperatureCompact(",
+                        "    private static func temperatureLabel(", "    private static func combinedComponentValue("])
+          + "}\n")
     metric_cases = "\n".join(line for line in declaration(metric_view, "enum MetricDetailKind:").splitlines()
                              if line.startswith("    case "))
     menu_metric_cases = "\n".join(line for line in declaration(renderer, "enum MenuBarMetric:").splitlines()
