@@ -6,6 +6,9 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+- Screenshots can skip the blue highlight on the window under the pointer while you choose an area. A click still captures that window. Settings → Screen capture → Highlight the window under the pointer.
+
 ### Fixed
 - Choosing an output for all apps changes only the system output again, so apps playing through an output of their own, such as a call app on a headset, stay there.
 - Paste as plain text strips formatting again from cells and slides copied with a picture of themselves, as Numbers and Excel copy them.
