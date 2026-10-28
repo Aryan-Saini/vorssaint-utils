@@ -316,6 +316,14 @@ enum NotchCalendarSupport {
     static let stripTitleSpacing: CGFloat = 5
     static let stripClockSpacing: CGFloat = 4
 
+    /// Reserve one clock shape for the selected lead, including restored
+    /// values, so counting through 100 minutes does not resize the island.
+    static func countdownShape(leadTime: TimeInterval) -> String {
+        let minutes = leadTime.isFinite
+            ? min(Double(countdownLeadRange.upperBound), max(60, ceil(leadTime / 60))) : 60
+        return String(repeating: "0", count: max(2, String(Int(minutes)).count)) + ":00"
+    }
+
     /// The time beside the countdown clock in the closed island: when the
     /// event starts or, while it is happening, when it ends.
     static func timeText(_ countdown: NotchCalendarCountdown, locale: Locale) -> String {

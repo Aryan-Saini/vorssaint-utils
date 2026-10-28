@@ -2061,10 +2061,19 @@ enum PointerInputFeatureTests {
                 && MouseSpacesGestureSupport.resolved(.spaceLeft, followsDrag: false) == .spaceLeft,
                "the Space can follow the hand instead of the pointer, and the overviews never swap")
 
-        suite.expect(MouseSpacesGestureSupport.canBind(3) && MouseSpacesGestureSupport.canBind(31)
-                && !MouseSpacesGestureSupport.canBind(2) && !MouseSpacesGestureSupport.canBind(32)
-                && !MouseSpacesGestureSupport.canBind(MouseButtonShortcutSupport.sideWheelLeftInput),
-               "the drag lives on an extra button, never on a side-wheel tick there is no way to hold")
+        suite.expect(MouseSpacesGestureSupport.canBind(2) && MouseSpacesGestureSupport.canBind(3)
+                && MouseSpacesGestureSupport.canBind(31) && !MouseSpacesGestureSupport.canBind(32)
+                && !MouseSpacesGestureSupport.canBind(0) && !MouseSpacesGestureSupport.canBind(1)
+                && !MouseSpacesGestureSupport.canBind(MouseButtonShortcutSupport.sideWheelLeftInput)
+                && !MouseSpacesGestureSupport.canBind(MouseButtonShortcutSupport.sideWheelRightInput),
+               "the drag accepts middle and extra buttons, leaving primary buttons and side-wheel ticks alone")
+
+        for language in AppLanguage.allCases {
+            let strings = FeatureStrings.mouseButtons(language)
+            suite.expect(!strings.middleButtonName.isEmpty
+                    && MouseButtonShortcutSupport.buttonName(for: 2, strings: strings) == strings.middleButtonName,
+                   "the middle button has a clear name in \(language.rawValue)")
+        }
 
         suite.expect(MouseSpacesGestureSupport.boundButton(isAvailable: true, isEnabled: true, button: 4,
                                                      hasShortcut: { _ in false },
@@ -2153,7 +2162,7 @@ enum PointerInputFeatureTests {
         } ?? ""
         let mouseButtonToggleID = "toggle.\(AppFeature.mouseButtonShortcuts.rawValue)"
         suite.expect(mouseButtonToggleCode.contains("DefaultsKey.mouseButtonShortcutsEnabled")
-                && mouseButtonToggleCode.contains("feature.hubTitle(s, hub: hub)")
+                && mouseButtonToggleCode.contains("feature.hubTitle(s, hub: hub, language: language)")
                 && mouseButtonToggleCode.contains("id: \"\(mouseButtonToggleID)\""),
                "the Command Bar keeps the mouse-button shortcut row's key, title and stable id")
         suite.expect(mouseButtonToggleCode.contains("FeatureStrings.mouseButtons(language)")
